@@ -1,0 +1,31 @@
+{
+    "name": "enjoyable-react",
+    "version": "0.0.1",
+    "private": true,
+    "dependencies": {
+        "react": "*",
+        "react-dom": "*",
+        "classnames": "*",
+        "clsx": "*"
+    },
+    "devDependencies": {
+        "webpack": "*",
+        "webpack-cli": "*",
+        "babel-loader": "*",
+        "@babel/core": "*",
+        "@babel/preset-env": "*",
+        "@babel/preset-react": "*",
+        "sass-loader": "*",
+        "node-sass": "*",
+        "css-loader": "*",
+        "style-loader": "*",
+        "webpack-dev-server": "*",
+        "html-webpack-plugin": "*",
+        "raw-loader": "*",
+        "@types/react": "16.9.25"
+    },
+    "scripts": {
+        "build": "webpack",
+        "start": "webpack-dev-server --open"
+    }
+}

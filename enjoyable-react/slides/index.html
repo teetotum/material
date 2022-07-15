@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+
+    <title>reveal.js</title>
+
+    <link rel="stylesheet" href="dist/reset.css" />
+    <link rel="stylesheet" href="dist/reveal.css" />
+    <link rel="stylesheet" href="dist/theme/black.css" />
+
+    <!-- Theme used for syntax highlighted code -->
+    <link rel="stylesheet" href="plugin/highlight/monokai.css" />
+  </head>
+  <body>
+    <div class="reveal">
+      <style>
+        .avenga-logo {
+          aspect-ratio: auto;
+          width: 400px;
+        }
+        .justify-left {
+          text-align: left;
+        }
+        .centered {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+          text-transform: none !important;
+        }
+      </style>
+      <div class="slides">
+        <section>
+          <h2>Enjoyable React</h2>
+          <h3>Why component API design matters</h3>
+
+          <br />
+          <br />
+
+          <img class="avenga-logo" src="./Avenga_logo_L_negative_color.png" />
+        </section>
+        <section>
+          <div class="centered">
+            <div class="justify-left">
+              Martin Winkler<br />
+              Developer<br />
+              Avenga Germany GmbH<br />
+              <br />
+              Twitter: @winkler_12<br />
+              Github: github.com/teetotum<br />
+              Blog: dev.to/teetotum<br />
+            </div>
+          </div>
+        </section>
+        <section>Component API?</section>
+        <section>
+          <div class="centered">
+            <div class="justify-left">
+              Part 1: props<br />
+              Part 2: mysterious other<br />
+              (Part 3: Tales of the Unexpected)<br />
+            </div>
+          </div>
+        </section>
+        <section>
+          <h2>Part 1: props</h2>
+        </section>
+        <section>
+          flexibility with regard to:
+
+          <br />
+
+          sizing, placement, alignment, margins, z&#8288;-&#8288;stacking,
+          border, and padding
+        </section>
+        <section>Live coding example: Button alignment</section>
+        <section>Live coding example: Stacking context</section>
+        <section>
+          did I mention...?
+          <ul>
+            <li>Support className!</li>
+            <li>TypeScript users: use HTMLAttributes</li>
+            <li>
+              Solves: sizing, placement, alignment, margins,
+              z&#8288;-&#8288;stacking, border, and padding
+            </li>
+            <li>What it doesn't solve: custom theming</li>
+            <li>Disclaimer: CSS-in-JS</li>
+          </ul>
+        </section>
+        <section>DOM attributes</section>
+        <section>Live coding example: Button data-test-id</section>
+        <section>
+          did I mention...?
+          <ul>
+            <li>Support data-* attributes</li>
+            <li>either use a rest property...</li>
+            <li>...or write / copy'n'paste a property filter</li>
+            <li>(and maybe also aria-* attributes)</li>
+          </ul>
+        </section>
+        <section>State changes and symmetry</section>
+        <section>Live coding example: Date validation</section>
+        <section>
+          did I mention...?
+          <ul>
+            <li>Don't leave gaps</li>
+            <li>Keep the symmetry</li>
+            <li><em>error state entered</em> and <em>error state left</em></li>
+            <li><em>dropdown closed</em> and <em>dropdown opened</em></li>
+          </ul>
+        </section>
+        <section>
+          <h2>Part 2: mysterious other</h2>
+        </section>
+        <section>
+          <h2>Part 2.1: imperative handle</h2>
+        </section>
+        <section>Live coding example: Modal</section>
+        <section>
+          did I mention...?
+          <ul>
+            <li>We can choose to offer an imperative API</li>
+            <li>in addition to our declarative API (props)</li>
+            <li>user must use a ref</li>
+            <li>and we must forwardRef</li>
+            <li>(and I chose a poor example)</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Part 2.2: members</h2>
+        </section>
+        <section>members?</section>
+        <section>A pool of allowed values for specific props</section>
+        <section>Live coding example: DatePicker.supportedDateFormats</section>
+        <section>Pre-configured variants of a base component</section>
+        <section>
+          Live coding example: Button.Primary and Button.Secondary
+        </section>
+        <section>Compound Components</section>
+        <section>Live coding example: Tab and Tab.Item</section>
+        <section>Attached Properties</section>
+        <section>Live coding example: Grid</section>
+        <section>
+          <h2>(bonus) Part 3: Tales of the Unexpected</h2>
+        </section>
+        <section>Bogus native elements</section>
+        <section>render functions are hooks</section>
+        <section>The End</section>
+      </div>
+    </div>
+
+    <script src="dist/reveal.js"></script>
+    <script src="plugin/notes/notes.js"></script>
+    <script src="plugin/markdown/markdown.js"></script>
+    <script src="plugin/highlight/highlight.js"></script>
+    <script>
+      // More info about initialization & config:
+      // - https://revealjs.com/initialization/
+      // - https://revealjs.com/config/
+      Reveal.initialize({
+        hash: true,
+
+        // Learn about plugins: https://revealjs.com/plugins/
+        plugins: [RevealMarkdown, RevealHighlight, RevealNotes],
+      });
+    </script>
+  </body>
+</html>

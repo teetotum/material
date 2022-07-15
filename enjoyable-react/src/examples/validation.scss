@@ -1,0 +1,19 @@
+$error-color: #ba000d;
+
+.validation-error {
+  display: block;
+  padding: 16px;
+  color: $error-color;
+  border: 2px solid $error-color;
+  border-radius: 2px;
+  margin-top: 32px;
+}
+
+.message {
+  display: block;
+  margin-top: 32px;
+}
+
+.form {
+  max-width: 400px;
+}

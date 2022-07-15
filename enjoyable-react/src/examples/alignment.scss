@@ -1,0 +1,19 @@
+.columns {
+  display: flex;
+}
+
+.hot-topic {
+  color: red;
+}
+
+.hot-topic-button {
+  align-self: stretch;
+}
+
+.article {
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  padding-left: 16px;
+  padding-right: 16px;
+}

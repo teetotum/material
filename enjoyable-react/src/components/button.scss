@@ -1,0 +1,50 @@
+@import "./_colors";
+
+.button {
+  --accent-color: #{$green};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  cursor: pointer;
+  user-select: none;
+
+  height: 40px;
+  padding: 0 24px;
+
+  background-color: $green;
+  &:hover {
+    background-color: $light-green;
+  }
+
+  align-self: flex-end;
+}
+
+.primary {
+  --accent-color: #{$blue};
+  background-color: $blue;
+  color: white;
+
+  &:hover {
+    background-color: $light-blue;
+  }
+}
+
+.secondary {
+  --accent-color: #{$yellow};
+  background-color: $yellow;
+  color: Black;
+
+  &:hover {
+    background-color: $light-yellow;
+  }
+}
+
+.large {
+  height: 60px;
+}
+
+.outline {
+  background-color: transparent;
+  border: 4px solid var(--accent-color);
+}

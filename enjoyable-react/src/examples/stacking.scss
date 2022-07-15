@@ -1,0 +1,24 @@
+.address-data {
+  padding: 32px;
+  border: 1px solid black;
+  background-color: #bbbbbb;
+}
+
+.field {
+  display: flex;
+  gap: 32px;
+  margin-top: 32px;
+  margin-bottom: 32px;
+  isolation: isolate;
+}
+
+// when presenting 'flexibility': add the following style rule
+// :global(.DatePicker-style_date-picker__XtBy5RmN) {
+//     z-index: 1;
+//     position: relative;
+// }
+// later replace it with
+// .delivery-date {
+//     z-index: 1;
+//     position: relative;
+// }

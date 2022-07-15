@@ -1,0 +1,130 @@
+//colors take from https://material-ui.com/customization/color/
+$palette-info-main: #2196f3;
+$palette-info-light: #64b5f6;
+
+$calendar-cell-size: 32px;
+
+.date-picker {
+  color: black;
+  display: flex;
+  position: relative;
+}
+
+.input {
+  display: block;
+  flex: 1;
+  height: 32px;
+}
+
+.pick-button {
+  flex: none;
+  height: 32px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: #eeeeee;
+}
+
+.popup {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: white;
+  box-shadow: 0px 8px 24px 4px rgba(0, 0, 0, 0.5);
+  padding: 16px;
+
+  &::before {
+    content: "";
+    display: block;
+    position: absolute;
+    bottom: 100%;
+    width: 0;
+    height: 0;
+    border: 16px solid transparent;
+    border-bottom-color: white;
+  }
+}
+
+.header {
+  display: flex;
+  margin-bottom: 8px;
+}
+
+.close-button {
+  margin-left: auto;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: $palette-info-main;
+
+  &:hover {
+    background-color: $palette-info-light;
+  }
+}
+
+.calendar {
+  display: flex;
+  flex-wrap: wrap;
+  width: 7 * ($calendar-cell-size + 2px);
+}
+
+.day {
+  width: $calendar-cell-size;
+  height: $calendar-cell-size;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  margin: 1px;
+
+  background-color: $palette-info-main;
+  &:hover {
+    background-color: $palette-info-light;
+    color: black;
+  }
+}
+
+.footer {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.month {
+  user-select: none;
+}
+
+.month-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  background-color: $palette-info-main;
+  width: 32px;
+  height: 32px;
+
+  &:hover {
+    background-color: $palette-info-light;
+    color: black;
+  }
+}
+
+.prev {
+  &::before {
+    content: "<";
+  }
+}
+
+.next {
+  &::before {
+    content: ">";
+  }
+}
