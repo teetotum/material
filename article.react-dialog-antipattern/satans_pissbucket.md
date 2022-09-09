@@ -153,7 +153,7 @@ This whole mess started with the necessity to supply a callback from one compone
 What would you do if you needed a callback to set `focus()` to an `<input>`? Simple, you would use a `ref`.
 
 Well, you can do the same thing with any of your custom components. It needs to be wrapped with `forwardRef` so the `ref` doesn't get lost ([doc](https://reactjs.org/docs/react-api.html#reactforwardref)).
-I wrote an [article](https://dev.to/teetotum/modalopen-imperative-component-api-in-react-3inc) covering that feature.
+I wrote an [article](https://github.com/teetotum/material/blob/master/article.react-imperative-api/react_imperative_component_api.md) covering that feature.
 Internally the forwarded `ref` is then wired to an object (with `useImperativeHandle` [doc](https://reactjs.org/docs/hooks-reference.html#useimperativehandle)); to which you can add any callback you can think of; thereby providing access to change state.
 
 An improved dialog could be implemented thus:
