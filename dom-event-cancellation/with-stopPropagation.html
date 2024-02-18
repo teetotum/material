@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      :root {
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+      }
+      body {
+        margin: 0;
+        background-color: blanchedalmond;
+      }
+      .menu-bar {
+        display: flex;
+        gap: 16px;
+        padding: 10px 20px;
+        background-color: darkcyan;
+      }
+      .menu {
+        position: relative;
+        &:not(.open) .menu-dropdown {
+          display: none;
+        }
+      }
+      .menu-button {
+        cursor: pointer;
+        user-select: none;
+        border: 1px solid currentColor;
+        padding: 4px 8px;
+        background-color: rgb(207, 143, 64);
+      }
+      .menu-button:hover {
+        background-color: rgb(235, 180, 99);
+      }
+      .menu-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background-color: canvas;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+      }
+      .menu-item {
+        padding: 8px 16px;
+        cursor: pointer;
+        user-select: none;
+      }
+      .menu-item:hover {
+        background-color: rgb(207, 209, 82);
+      }
+
+      .app-header {
+        background-color: cadetblue;
+        contain: content;
+        padding: 0 20px;
+      }
+
+      .app-content {
+        padding: 40px 20px;
+      }
+
+      th,
+      td {
+        border: 1px solid rgb(160 160 160);
+        padding: 8px 10px;
+      }
+
+      th[scope="col"] {
+        background-color: #505050;
+        color: #fff;
+      }
+
+      th[scope="row"] {
+        background-color: #d6ecd4;
+      }
+
+      td {
+        text-align: center;
+      }
+
+      tr:nth-of-type(even) {
+        background-color: #eee;
+      }
+
+      table {
+        border-collapse: collapse;
+        border: 2px solid rgb(140 140 140);
+        font-family: sans-serif;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+      }
+
+      caption {
+        caption-side: bottom;
+        padding: 10px;
+      }
+      .selected {
+        background-color: chartreuse !important;
+        color: black !important;
+      }
+      .sort-asc:hover,
+      .sort-desc:hover {
+        background-color: #fff;
+        color: black;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-header">
+      <h1>Piggy Bank</h1>
+      <h2>online banking</h2>
+      <div id="sessiontimeout"></div>
+    </div>
+    <div class="menu-bar">
+      <div class="menu" id="menu1">
+        <div class="menu-button">Options 1</div>
+        <div class="menu-dropdown">
+          <div class="menu-item">Lorem</div>
+          <div class="menu-item">Ipsum</div>
+          <div class="menu-item">Dolor</div>
+        </div>
+      </div>
+      <div class="menu" id="menu2">
+        <div class="menu-button">Options 2</div>
+        <div class="menu-dropdown">
+          <div class="menu-item">Sitamet</div>
+          <div class="menu-item">Dolor</div>
+        </div>
+      </div>
+      <div class="menu" id="menu3">
+        <div class="menu-button">Options 3</div>
+        <div class="menu-dropdown">
+          <div class="menu-item">Lorem</div>
+          <div class="menu-item">Ipsum</div>
+          <div class="menu-item">Sitamet</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-content">
+      <table>
+        <caption>
+          Account transactions
+        </caption>
+        <tr>
+          <th scope="col" id="id-col">
+            ID
+            <div class="sort-asc">^</div>
+            <div class="sort-desc">v</div>
+          </th>
+          <th scope="col" id="date-col">
+            Date
+            <div class="sort-asc">^</div>
+            <div class="sort-desc">v</div>
+          </th>
+          <th scope="col" id="comment-col">
+            Comment
+            <div class="sort-asc">^</div>
+            <div class="sort-desc">v</div>
+          </th>
+          <th scope="col" id="type-col">
+            Type
+            <div class="sort-asc">^</div>
+            <div class="sort-desc">v</div>
+          </th>
+          <th scope="col" id="amount-col">
+            Amount
+            <div class="sort-asc">^</div>
+            <div class="sort-desc">v</div>
+          </th>
+        </tr>
+        <tr>
+          <th scope="row">T-765465</th>
+          <td>2024-01-28</td>
+          <td>Salary</td>
+          <td>incoming</td>
+          <td>1800 €</td>
+        </tr>
+        <tr>
+          <th scope="row">T-8887236</th>
+          <td>2024-01-04</td>
+          <td>new tires</td>
+          <td>outgoing</td>
+          <td>400 €</td>
+        </tr>
+        <tr>
+          <th scope="row">T-5568291</th>
+          <td>2024-01-02</td>
+          <td>Rent</td>
+          <td>outgoing</td>
+          <td>780 €</td>
+        </tr>
+      </table>
+    </div>
+
+    <script>
+      const sessionTimeout = 1000 * 60 * 5;
+      let secondsTillLockout;
+      const updateTimeoutUI = () => {
+        const minutes = secondsTillLockout / 60;
+        const seconds = secondsTillLockout % 60;
+        document.getElementById(
+          "sessiontimeout"
+        ).textContent = `${new Intl.NumberFormat("de-DE", {
+          maximumFractionDigits: 0,
+        }).format(minutes)}:${new Intl.NumberFormat("de-DE", {
+          minimumIntegerDigits: 2,
+        }).format(seconds)}`;
+      };
+      const resetSessionTimeout = () => {
+        secondsTillLockout = sessionTimeout / 1000;
+        updateTimeoutUI();
+      };
+      const initSessionKeepAlive = () => {
+        document.documentElement.addEventListener(
+          "click",
+          resetSessionTimeout,
+          { capture: true }
+        );
+        document.documentElement.addEventListener(
+          "keydown",
+          resetSessionTimeout,
+          { capture: true }
+        );
+        resetSessionTimeout();
+        window.setInterval(() => {
+          secondsTillLockout = Math.max(0, secondsTillLockout - 1);
+          updateTimeoutUI();
+        }, 1000);
+      };
+      const initMenu = (root) => {
+        let isOpen = false;
+        const updateUI = () => {
+          if (isOpen) root.classList.add("open");
+          else root.classList.remove("open");
+        };
+        const toggle = (e) => {
+          isOpen = !isOpen;
+          updateUI();
+          e.stopPropagation();
+          e.preventDefault();
+        };
+        const close = () => {
+          isOpen = false;
+          updateUI();
+        };
+        const togglebutton = root.querySelector(".menu-button");
+        togglebutton.addEventListener("click", toggle);
+        const mightClose = (e) => {
+          if (!root.contains(e.target)) close();
+        };
+        document.documentElement.addEventListener("click", mightClose, {
+          capture: true,
+        });
+        updateUI();
+      };
+      const iniColumnHeader = (colHeader) => {
+        colHeader.addEventListener("click", (e) => {
+          colHeader.classList.toggle("selected");
+          e.stopPropagation();
+          e.preventDefault();
+        });
+        colHeader.querySelector(".sort-asc").addEventListener("click", (e) => {
+          console.log("sorted ascending");
+          e.stopPropagation();
+          e.preventDefault();
+        });
+        colHeader.querySelector(".sort-desc").addEventListener("click", (e) => {
+          console.log("sorted descending");
+          e.stopPropagation();
+          e.preventDefault();
+        });
+      };
+
+      initMenu(document.getElementById("menu1"));
+      initMenu(document.getElementById("menu2"));
+      initMenu(document.getElementById("menu3"));
+      initSessionKeepAlive();
+      iniColumnHeader(document.getElementById("id-col"));
+      iniColumnHeader(document.getElementById("date-col"));
+      iniColumnHeader(document.getElementById("type-col"));
+      iniColumnHeader(document.getElementById("comment-col"));
+      iniColumnHeader(document.getElementById("amount-col"));
+    </script>
+  </body>
+</html>

@@ -1,0 +1,65 @@
+:root {
+  --opinion-color: #757de8;
+  --fact-color: #ffffff;
+}
+
+.opinion {
+  background-color: var(--opinion-color);
+  color: white;
+}
+
+.afaik {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--fact-color),
+    var(--fact-color) 20px,
+    var(--opinion-color) 20px,
+    var(--opinion-color) 40px
+  );
+}
+
+.afaik > * {
+  background-color: var(--opinion-color);
+  color: white;
+}
+
+.smaller-font {
+  font-size: 10px;
+}
+
+.lower-half {
+  position: fixed;
+  width: 100%;
+  left: 0;
+  height: 1000px;
+  text-align: center;
+  padding-top: 20px;
+}
+
+.slide {
+  h1 {
+    font-size: 200%;
+  }
+}
+
+.slide-content {
+}
+
+.vertical-split .slide-content {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  width: auto;
+  height: 100%;
+  grid-template-columns: 1fr 1fr;
+}
+
+.vertical-split .slide-content:has(:nth-child(3)) {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.vertical-split .slide-content > * {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
