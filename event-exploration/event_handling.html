@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head></head>
+  <body style="padding: 100px">
+    <h2>What do I want to find out?</h2>
+    <p>
+      Can event handlers that were attached via the two different ways ("onevent
+      property / attribute" and "addEventListener") coexist, or will the one
+      that was attached later overwrite the one that was attached earlier?
+    </p>
+    <p>
+      What happens to an "onevent property" assigned event handler when a second
+      one is assigned?
+    </p>
+
+    <script>
+      function globalClick(e) {
+        console.log(`registered via onclick="..." attribute; is active`);
+      }
+    </script>
+
+    <button id="btn" onclick="globalClick(event)">Click</button>
+
+    <script>
+      const button = document.getElementById("btn");
+
+      const addEventListener_handler = (e) => {
+        console.log("registered via 'addEventListener'; is active");
+      };
+
+      const onevent_handler = (e) => {
+        console.log("registered via onclick; is active");
+      };
+
+      button.addEventListener("click", addEventListener_handler);
+      button.onclick = onevent_handler;
+    </script>
+  </body>
+</html>
