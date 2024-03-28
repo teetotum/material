@@ -9,6 +9,7 @@
 - event cancellation
 - valid event audience
 - only UI tree, or general Pub/Sub / event bus? https://www.youtube.com/watch?v=fusAJwee7ws
+- general Pub/Sub with EventTarget https://www.youtube.com/watch?v=fusAJwee7ws
 
 https://stackoverflow.com/questions/18971284/event-preventdefault-vs-return-false-no-jquery
 
