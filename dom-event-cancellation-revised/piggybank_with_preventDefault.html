@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      :root {
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+      }
+      body {
+        margin: 0;
+        background-color: blanchedalmond;
+      }
+      .menu-bar {
+        display: flex;
+        gap: 16px;
+        padding: 10px 20px;
+        background-color: darkcyan;
+      }
+      .menu {
+        position: relative;
+        &:not(.open) .menu-dropdown {
+          display: none;
+        }
+      }
+      .menu-button {
+        cursor: pointer;
+        user-select: none;
+        border: 1px solid currentColor;
+        padding: 4px 8px;
+        background-color: rgb(207, 143, 64);
+      }
+      .menu-button:hover {
+        background-color: rgb(235, 180, 99);
+      }
+      .menu-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background-color: canvas;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+      }
+      .menu-item {
+        padding: 8px 16px;
+        cursor: pointer;
+        user-select: none;
+      }
+      .menu-item:hover {
+        background-color: rgb(207, 209, 82);
+      }
+
+      .app-header {
+        background-color: cadetblue;
+        contain: content;
+        padding: 0 20px;
+      }
+
+      .app-content {
+        padding: 40px 20px;
+      }
+
+      th,
+      td {
+        border: 1px solid rgb(160 160 160);
+        padding: 8px 10px;
+      }
+
+      th[scope="col"] {
+        background-color: #505050;
+        color: #fff;
+      }
+
+      th[scope="row"] {
+        background-color: #d6ecd4;
+      }
+
+      td {
+        text-align: center;
+      }
+
+      tr:nth-of-type(even) {
+        background-color: #eee;
+      }
+      tr:nth-of-type(odd) {
+        background-color: #bbb;
+      }
+
+      table {
+        border-collapse: collapse;
+        border: 2px solid rgb(140 140 140);
+        font-family: sans-serif;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+      }
+
+      caption {
+        caption-side: bottom;
+        padding: 10px;
+      }
+      .selected {
+        background-color: darkcyan !important;
+        color: white !important;
+      }
+      .sort-asc:hover,
+      .sort-desc:hover {
+        background-color: #fff;
+        color: black;
+        cursor: pointer;
+      }
+
+      .export-popup {
+        padding: 20px;
+        background-color: white;
+        position: fixed;
+        inset: 30vh 30vw 30vh 30vw;
+        box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+        display: none;
+      }
+      .export-popup.open {
+        display: block;
+      }
+      .export-popup-close {
+        background-color: #505050;
+        color: white;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        position: absolute;
+        top: 4px;
+        right: 4px;
+      }
+      .export-popup-close:hover {
+        background-color: lightslategray;
+      }
+      .export-popup-submit {
+        display: block;
+        margin-top: 40px;
+      }
+
+      .type-select {
+        position: relative;
+        background-color: #fff;
+        border: 1px solid grey;
+        margin-top: 20px;
+      }
+      .type-select-dropdown {
+        position: absolute;
+        top: 100%;
+        background-color: #fff;
+        box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+        display: flex;
+        flex-direction: column;
+        display: none;
+      }
+      .type-select.open .type-select-dropdown {
+        display: flex;
+      }
+      .type-select-selected {
+        display: flex;
+        align-items: center;
+        height: 40px;
+        padding: 10px;
+      }
+      .type-select-dropdown option {
+        padding: 10px;
+      }
+      .type-select-dropdown option:hover {
+        background-color: aquamarine;
+      }
+      .type-select-selected::after {
+        content: attr(data-selected);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-header">
+      <h1>Piggy Bank</h1>
+      <h2>online banking</h2>
+      <div id="sessiontimeout"></div>
+    </div>
+    <div class="menu-bar">
+      <div class="menu" id="menu1">
+        <div class="menu-button">Options 1</div>
+        <div class="menu-dropdown">
+          <div class="menu-item">Lorem</div>
+          <div class="menu-item">Ipsum</div>
+          <div class="menu-item">Dolor</div>
+        </div>
+      </div>
+      <div class="menu" id="menu2">
+        <div class="menu-button">Options 2</div>
+        <div class="menu-dropdown">
+          <div class="menu-item">Sitamet</div>
+          <div class="menu-item">Dolor</div>
+        </div>
+      </div>
+      <div class="menu" id="menu3">
+        <div class="menu-button">Options 3</div>
+        <div class="menu-dropdown">
+          <div class="menu-item">Lorem</div>
+          <div class="menu-item">Ipsum</div>
+          <div class="menu-item">Sitamet</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-content">
+      <table id="transactions">
+        <caption>
+          Account transactions
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col" id="id-col">
+              ID
+              <div class="sort-asc">^</div>
+              <div class="sort-desc">v</div>
+            </th>
+            <th scope="col" id="date-col">
+              Date
+              <div class="sort-asc">^</div>
+              <div class="sort-desc">v</div>
+            </th>
+            <th scope="col" id="comment-col">
+              Comment
+              <div class="sort-asc">^</div>
+              <div class="sort-desc">v</div>
+            </th>
+            <th scope="col" id="type-col">
+              Type
+              <div class="sort-asc">^</div>
+              <div class="sort-desc">v</div>
+            </th>
+            <th scope="col" id="amount-col" data-sort-numeric="true">
+              Amount
+              <div class="sort-asc">^</div>
+              <div class="sort-desc">v</div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">T-8252736</th>
+            <td>2024-02-28</td>
+            <td>Salary</td>
+            <td>incoming</td>
+            <td>1800 €</td>
+          </tr>
+          <tr>
+            <th scope="row">T-1326427</th>
+            <td>2024-02-17</td>
+            <td>car refueling</td>
+            <td>outgoing</td>
+            <td>90 €</td>
+          </tr>
+          <tr>
+            <th scope="row">T-8265242</th>
+            <td>2024-02-15</td>
+            <td>IKEA</td>
+            <td>outgoing</td>
+            <td>350 €</td>
+          </tr>
+          <tr>
+            <th scope="row">T-9927625</th>
+            <td>2024-02-02</td>
+            <td>Rent</td>
+            <td>outgoing</td>
+            <td>780 €</td>
+          </tr>
+          <tr>
+            <th scope="row">T-7654657</th>
+            <td>2024-01-28</td>
+            <td>Salary</td>
+            <td>incoming</td>
+            <td>1800 €</td>
+          </tr>
+          <tr>
+            <th scope="row">T-8887236</th>
+            <td>2024-01-04</td>
+            <td>new tires</td>
+            <td>outgoing</td>
+            <td>400 €</td>
+          </tr>
+          <tr>
+            <th scope="row">T-5568291</th>
+            <td>2024-01-02</td>
+            <td>Rent</td>
+            <td>outgoing</td>
+            <td>780 €</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <button id="export">Export selected columns</button>
+    </div>
+
+    <div class="popup-layer">
+      <div id="export-popup" class="export-popup" tabindex="0">
+        <div id="export-popup-close" class="export-popup-close">X</div>
+        <h2>Export transactions</h2>
+        <label>
+          From <input type="date" onkeydown="console.log(event)" />
+        </label>
+        <label> To <input type="date" onkeydown="console.log(event)" /> </label>
+        <div id="type-select" class="type-select" tabindex="0">
+          <div class="type-select-selected"></div>
+          <div class="type-select-dropdown">
+            <option value="incoming">incoming</option>
+            <option value="outgoing">outgoing</option>
+          </div>
+        </div>
+        <button class="export-popup-submit">start export</button>
+      </div>
+    </div>
+
+    <script>
+      const sessionTimeoutSeconds = 60 * 5;
+      let secondsTillLockout;
+      const updateTimeoutUI = () => {
+        const minutes = Math.floor(secondsTillLockout / 60);
+        const seconds = secondsTillLockout % 60;
+        document.getElementById(
+          "sessiontimeout"
+        ).textContent = `${new Intl.NumberFormat("de-DE", {
+          maximumFractionDigits: 0,
+        }).format(minutes)}:${new Intl.NumberFormat("de-DE", {
+          minimumIntegerDigits: 2,
+        }).format(seconds)}`;
+      };
+      const resetSessionTimeout = () => {
+        secondsTillLockout = sessionTimeoutSeconds;
+        updateTimeoutUI();
+      };
+      const initSessionKeepAlive = () => {
+        // Secondary Effects
+        // document.documentElement.addEventListener("click", resetSessionTimeout, { capture: true }); // prettier-ignore
+        // document.documentElement.addEventListener("keydown", resetSessionTimeout, { capture: true }); // prettier-ignore
+        document.documentElement.addEventListener("click", resetSessionTimeout); // prettier-ignore
+        document.documentElement.addEventListener("keydown", resetSessionTimeout); // prettier-ignore
+        resetSessionTimeout();
+        window.setInterval(() => {
+          secondsTillLockout = Math.max(0, secondsTillLockout - 1);
+          updateTimeoutUI();
+        }, 1000);
+      };
+      const initMenu = (root) => {
+        let isOpen = false;
+        const updateUI = () => {
+          if (isOpen) root.classList.add("open");
+          else root.classList.remove("open");
+        };
+        const toggle = (e) => {
+          isOpen = !isOpen;
+          updateUI();
+        };
+        const close = () => {
+          isOpen = false;
+          updateUI();
+        };
+        const togglebutton = root.querySelector(".menu-button");
+        // Primary Effect
+        togglebutton.addEventListener("click", (e) => {
+          if (!e.defaultPrevented) {
+            toggle(e);
+            e.preventDefault();
+          }
+
+          //e.stopPropagation()
+        });
+        const mightClose = (e) => {
+          if (!root.contains(e.target)) close();
+        };
+        // Secondary Effect
+        // document.documentElement.addEventListener("click", mightClose, { capture: true }); // prettier-ignore
+        document.documentElement.addEventListener("click", mightClose);
+        updateUI();
+      };
+      const iniColumnHeader = (table, colHeader) => {
+        const cellIndex = colHeader.cellIndex;
+        const tBody = table.tBodies[0];
+        const rows = Array.from(tBody.rows);
+        const sortNumeric = Boolean(colHeader.dataset.sortNumeric);
+        const comparer = (tr1, tr2) => {
+          const tr1Text = tr1.cells[cellIndex].textContent;
+          const tr2Text = tr2.cells[cellIndex].textContent;
+
+          return sortNumeric
+            ? Number.parseInt(tr1Text) - Number.parseInt(tr2Text)
+            : tr1Text.localeCompare(tr2Text);
+        };
+        // Primary Effect
+        colHeader.addEventListener("click", (e) => {
+          if (!e.defaultPrevented) {
+            colHeader.classList.toggle("selected");
+            e.preventDefault();
+          }
+
+          // e.stopPropagation();
+        });
+        // Primary Effect
+        colHeader.querySelector(".sort-asc").addEventListener("click", (e) => {
+          if (!e.defaultPrevented) {
+            rows.sort((a, b) => comparer(a, b));
+            tBody.append(...rows);
+            console.log("sorted ascending");
+            e.preventDefault();
+          }
+
+          // e.stopPropagation();
+        });
+        // Primary Effect
+        colHeader.querySelector(".sort-desc").addEventListener("click", (e) => {
+          // e.stopPropagation();
+
+          if (!e.defaultPrevented) {
+            rows.sort((a, b) => comparer(a, b) * -1);
+            tBody.append(...rows);
+            console.log("sorted descending");
+            e.preventDefault();
+          }
+        });
+      };
+
+      const initExport = () => {
+        let isOpen = false;
+        let toggledBy = null;
+        const popup = document.getElementById("export-popup");
+        const popupCloseX = document.getElementById("export-popup-close");
+        const updateUI = () => {
+          if (isOpen) popup.classList.add("open");
+          else popup.classList.remove("open");
+        };
+        const close = (e) => {
+          toggledBy = e;
+          isOpen = false;
+          updateUI();
+        };
+        const open = (e) => {
+          toggledBy = e;
+          isOpen = true;
+          updateUI();
+        };
+        const toggle = (e) => {
+          if (isOpen) close(e);
+          else open(e);
+        };
+        const handleEscape = (e) => {
+          if (e.key === "Escape" && isOpen && !e.defaultPrevented) {
+            close(e);
+            e.preventDefault();
+            // e.stopPropagation();
+          }
+        };
+
+        // Primary Effect
+        popup.addEventListener("keydown", handleEscape);
+        const button = document.getElementById("export");
+        // Primary Effect
+        button.addEventListener("click", (e) => {
+          if (!e.defaultPrevented) {
+            toggle(e);
+            e.preventDefault();
+          }
+
+          // e.stopPropagation();
+        });
+        // Primary Effect
+        popupCloseX.addEventListener("click", (e) => {
+          if (!e.defaultPrevented) {
+            close(e);
+            e.preventDefault();
+          }
+
+          // e.stopPropagation();
+        });
+        const mightClose = (e) => {
+          if (!popup.contains(e.target) && toggledBy !== e) close(e);
+          toggledBy = null;
+        };
+        // Secondary Effect
+        // document.documentElement.addEventListener("click", mightClose, { capture: true }); // prettier-ignore
+        document.documentElement.addEventListener("click", mightClose);
+        updateUI();
+      };
+
+      const initTypeSelect = () => {
+        let isOpen = false;
+        let toggledBy = null;
+        const typeSelect = document.getElementById("type-select");
+        const toggler = typeSelect.querySelector(".type-select-selected");
+        const list = typeSelect.querySelector(".type-select-dropdown");
+
+        const updateUI = () => {
+          if (isOpen) typeSelect.classList.add("open");
+          else typeSelect.classList.remove("open");
+        };
+        const close = (e) => {
+          toggledBy = e;
+          isOpen = false;
+          updateUI();
+        };
+        const open = (e) => {
+          toggledBy = e;
+          isOpen = true;
+          updateUI();
+        };
+        const toggle = (e) => {
+          if (isOpen) close(e);
+          else open(e);
+        };
+        const handleEscape = (e) => {
+          if (e.key === "Escape" && isOpen && !e.defaultPrevented) {
+            close(e);
+            e.preventDefault();
+            //e.stopPropagation();
+          }
+        };
+        const select = (e) => {
+          if (e.target.value && !e.defaultPrevented) {
+            toggler.dataset.selected = e.target.value;
+            close(e);
+            e.preventDefault();
+            //e.stopPropagation();
+          }
+        };
+
+        // Primary Effect
+        toggler.addEventListener("click", (e) => {
+          if (!e.defaultPrevented) {
+            toggle(e);
+            e.preventDefault();
+          }
+
+          //e.stopPropagation();
+        });
+        // Primary Effect
+        list.addEventListener("click", select);
+        // Primary Effect
+        typeSelect.addEventListener("keydown", handleEscape);
+        const mightClose = (e) => {
+          if (!list.contains(e.target) && toggledBy !== e) close(e);
+          toggledBy = null;
+        };
+        // Secondary Effect
+        // document.documentElement.addEventListener("click", mightClose, { capture: true }); // prettier-ignore
+        document.documentElement.addEventListener("click", mightClose);
+        updateUI();
+      };
+
+      initMenu(document.getElementById("menu1"));
+      initMenu(document.getElementById("menu2"));
+      initMenu(document.getElementById("menu3"));
+      initSessionKeepAlive();
+      iniColumnHeader(
+        document.getElementById("transactions"),
+        document.getElementById("id-col")
+      );
+      iniColumnHeader(
+        document.getElementById("transactions"),
+        document.getElementById("date-col")
+      );
+      iniColumnHeader(
+        document.getElementById("transactions"),
+        document.getElementById("comment-col")
+      );
+      iniColumnHeader(
+        document.getElementById("transactions"),
+        document.getElementById("type-col")
+      );
+      iniColumnHeader(
+        document.getElementById("transactions"),
+        document.getElementById("amount-col")
+      );
+      initExport();
+      initTypeSelect();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,913 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <title>DOM Event Cancellation</title>
+  <style type="text/css">
+    body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #222;
+  font-size: 100%;
+}
+
+.slide {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 0; right: 0;
+  background-color: #f7f7f7;
+}
+
+.slide-content {
+  width: 800px;
+  height: 600px;
+  overflow: hidden;
+  margin: 80px auto 0 auto;
+  padding: 30px;
+
+  font-weight: 200;
+  font-size: 200%;
+  line-height: 1.375;
+}
+
+.controls {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+}
+
+.arrow {
+  width: 0; height: 0;
+  border: 30px solid #333;
+  float: left;
+  margin-right: 30px;
+
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.prev {
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+
+  border-left-width: 0;
+  border-right-width: 50px;
+}
+
+.next {
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  border-right-color: transparent;
+
+  border-left-width: 50px;
+  border-right-width: 0;
+}
+
+.prev:hover {
+  border-right-color: #888;
+  cursor: pointer;
+}
+
+.next:hover {
+  border-left-color: #888;
+  cursor: pointer;
+}
+
+h1 {
+  font-size: 300%;
+  line-height: 1.2;
+  text-align: center;
+  margin: 170px 0 0;
+}
+
+h2 {
+  font-size: 100%;
+  line-height: 1.2;
+  margin: 5px 0;
+  text-align: center;
+  font-weight: 200;
+}
+
+h3 {
+  font-size: 140%;
+  line-height: 1.2;
+  border-bottom: 1px solid #aaa;
+  margin: 0;
+  padding-bottom: 15px;
+}
+
+ul {
+  padding: 20px 0 0 60px;
+  font-weight: 200;
+  line-height: 1.375;
+}
+
+.author h1 {
+  font-size: 170%;
+  font-weight: 200;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.author h3 {
+  font-weight: 100;
+  text-align: center;
+  font-size: 95%;
+  border: none;
+}
+
+a {
+  text-decoration: none;
+  color: #44a4dd;
+}
+
+a:hover {
+  color: #66b5ff;
+}
+
+pre {
+  font-size: 60%;
+  line-height: 1.3;
+}
+
+.progress {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  z-index: 1;
+}
+
+.progress-bar {
+  width: 0%;
+  height: 3px;
+  background-color: #b4b4b4;
+
+  -webkit-transition: width 0.05s ease-out;
+  -moz-transition: width 0.05s ease-out;
+  -o-transition: width 0.05s ease-out;
+  transition: width 0.05s ease-out;
+}
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 850px) {
+
+  body {
+    font-size: 70%;
+  }
+
+  .slide-content {
+    width: auto;
+  }
+
+  img {
+    width: 100%;
+  }
+
+  h1 {
+    margin-top: 120px;
+  }
+
+  .prev, .prev:hover {
+    border-right-color: rgba(135, 135, 135, 0.5);
+  }
+
+  .next, .next:hover {
+    border-left-color: rgba(135, 135, 135, 0.5);
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 50%;
+    overflow: hidden;
+  }
+
+  .slide-content {
+    padding: 10px;
+    margin-top: 10px;
+    height: 340px;
+  }
+
+  h1 {
+    margin-top: 50px;
+  }
+
+  ul {
+    padding-left: 25px;
+  }
+}
+
+@media print {
+  * {
+    -webkit-print-color-adjust: exact;
+  }
+
+  @page {
+    size: letter;
+  }
+
+  .hidden {
+    display: inline;
+  }
+
+  html {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  body {
+    margin: 0 auto !important;
+    border: 0;
+    padding: 0;
+    float: none !important;
+    overflow: visible;
+    background: none !important;
+    font-size: 52%;
+  }
+
+  .progress, .controls {
+    display: none;
+  }
+
+  .slide {
+    position: static;
+  }
+
+  .slide-content {
+    border: 1px solid #222;
+    margin-top: 0;
+    margin-bottom: 40px;
+    height: 3.5in;
+    overflow: visible;
+  }
+
+  .slide:nth-child(even) {
+    /* 2 slides per page */
+    page-break-before: always;
+  }
+}
+
+/*
+
+github.com style (c) Vasily Polovnyov <vast@whiteants.net>
+
+*/
+
+.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 0.5em;
+  color: #333;
+  background: #f8f8f8;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: #998;
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-subst {
+  color: #333;
+  font-weight: bold;
+}
+
+.hljs-number,
+.hljs-literal,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag .hljs-attr {
+  color: #008080;
+}
+
+.hljs-string,
+.hljs-doctag {
+  color: #d14;
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-selector-id {
+  color: #900;
+  font-weight: bold;
+}
+
+.hljs-subst {
+  font-weight: normal;
+}
+
+.hljs-type,
+.hljs-class .hljs-title {
+  color: #458;
+  font-weight: bold;
+}
+
+.hljs-tag,
+.hljs-name,
+.hljs-attribute {
+  color: #000080;
+  font-weight: normal;
+}
+
+.hljs-regexp,
+.hljs-link {
+  color: #009926;
+}
+
+.hljs-symbol,
+.hljs-bullet {
+  color: #990073;
+}
+
+.hljs-built_in,
+.hljs-builtin-name {
+  color: #0086b3;
+}
+
+.hljs-meta {
+  color: #999;
+  font-weight: bold;
+}
+
+.hljs-deletion {
+  background: #fdd;
+}
+
+.hljs-addition {
+  background: #dfd;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+:root {
+  --opinion-color: #757de8;
+  --fact-color: #ffffff;
+}
+
+.opinion {
+  background-color: var(--opinion-color);
+  color: white;
+}
+
+.afaik {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--fact-color),
+    var(--fact-color) 20px,
+    var(--opinion-color) 20px,
+    var(--opinion-color) 40px
+  );
+}
+
+.afaik > * {
+  background-color: var(--opinion-color);
+  color: white;
+}
+
+.smaller-font {
+  font-size: 10px;
+}
+
+.lower-half {
+  position: fixed;
+  width: 100%;
+  left: 0;
+  height: 1000px;
+  text-align: center;
+  padding-top: 20px;
+}
+
+.slide {
+  h1 {
+    font-size: 200%;
+  }
+}
+
+.slide-content {
+}
+
+.vertical-split .slide-content {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  width: auto;
+  height: 100%;
+  grid-template-columns: 1fr 1fr;
+}
+
+.vertical-split .slide-content:has(:nth-child(3)) {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.vertical-split .slide-content > * {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+  </style>
+</head>
+<body>
+  
+  <div class="slide" id="slide-1">
+    <section class="slide-content"><h1 id="dom-event-cancellation">DOM Event Cancellation</h1>
+<div class="opinion lower-half">
+  <h2>
+    ...and why we shouln&#39;t use .stopPropagation()
+  </h2>
+</div></section>
+  </div>
+  <div class="slide hidden  vertical-split" id="slide-2">
+    <section class="slide-content"><div class="fact">
+  <h2>
+    Facts
+  </h2>
+</div>
+
+<div class="opinion">
+  <h2>
+    Opinion
+  </h2>
+</div></section>
+  </div>
+  <div class="slide hidden  vertical-split" id="slide-3">
+    <section class="slide-content"><div class="fact">
+  <h2>
+    Facts
+  </h2>
+</div>
+
+<div class="afaik">
+  <ul>
+    <li>To the best of my knowledge</li>
+    <li>Observation</li>
+    <li>Interpretation</li>
+    <li>Lacking official sources</li>
+  </ul>
+</div>
+
+<div class="opinion">
+  <h2>
+    Opinion
+  </h2>
+</div></section>
+  </div>
+  <div class="slide hidden" id="slide-4">
+    <section class="slide-content"><p>what do we call this scenario? event cancellation?</p>
+<pre><code class="lang-pseudo-code">if (Listener-A.ran) omit(Listener-B)
+</code></pre>
+<p><img style="object-fit: contain; height: 460px" src="file:///C:/tinkerspace/react-grid-exploration/src/dom_event_cancellation/dom_scribble_with_listeners.svg" /></p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-5">
+    <section class="slide-content"><p>mdn calls only this <em>event cancellation</em> ...</p>
+<pre><code class="lang-js">e.preventDefault();
+</code></pre>
+<blockquote>
+<p>To cancel an event, call the <code>preventDefault()</code> method on the event. This keeps the implementation from executing the default action that is associated with the event. Event listeners that handle multiple kinds of events may want to check <code>cancelable</code> before invoking their <code>preventDefault()</code> methods.
+<a href="https://developer.mozilla.org/en-US/docs/Web/API/Event/cancelable">mdn: cancelable</a></p>
+</blockquote>
+<!-- > Calling `preventDefault()` during any stage of event flow cancels the event, meaning that any default action normally taken by the implementation as a result of the event will not occur.
+> You can use `Event.cancelable` to check if the event is cancelable. Calling `preventDefault()` for a non-cancelable event has no effect.
+> [mdn: preventDefault](https://developer.mozilla.org/en-US/docs/Web/API/Event/preventDefault)
+
+> If invoked when the `cancelable` attribute value is true, and while executing a listener for the _event_ with `passive` set to false, signals to the operation that caused _event_ to be dispatched that it needs to be canceled.
+> [spec: preventDefault](https://dom.spec.whatwg.org/#ref-for-dom-event-preventdefault③) --></section>
+  </div>
+  <div class="slide hidden" id="slide-6">
+    <section class="slide-content"><p>...but what do we call this then?</p>
+<pre><code class="lang-js">e.stopPropagation();
+<span class="hljs-comment">// or</span>
+e.stopImmediatePropagation();
+</code></pre>
+<blockquote>
+<p>When dispatched in a tree, invoking this method prevents <em>event</em> from reaching any objects other than the current object.
+<a href="https://dom.spec.whatwg.org/#ref-for-dom-event-stoppropagation①">spec: stopPropagation</a></p>
+</blockquote>
+</section>
+  </div>
+  <div class="slide hidden  afaik" id="slide-7">
+    <section class="slide-content"><p>Observation: From time to time we need a mechanism to control whether an effect is triggered by an event, depending on whether another effect was already triggered by the same event.</p>
+<p>In plain words: we need to <em>cancel</em> an event</p>
+<!--
+distinguish _handled_ and _unhandled_ events. --></section>
+  </div>
+  <div class="slide hidden  afaik" id="slide-8">
+    <section class="slide-content"><h2 id="proposal-a-broader-definition-an-umbrella-term">Proposal: a broader definition / an umbrella term</h2>
+<p><b>DOM event cancellation</b> is any mechanism that...</p>
+<ul>
+<li>is triggered by a DOM event, and that...</li>
+<li>prevents an effect from happening, which would otherwise be triggered by the same DOM event</li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-9">
+    <section class="slide-content"><p>So this is event cancellation...</p>
+<pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"https://www.example.com/"</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"link"</span>&gt;</span>click me<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
+</code></pre>
+<pre><code class="lang-js"><span class="hljs-built_in">document</span>
+  .getElementById(<span class="hljs-string">"link"</span>)
+  .addEventListener(<span class="hljs-string">"click"</span>, (e) =&gt; e.preventDefault());
+</code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-10">
+    <section class="slide-content"><p>...and this is event cancellation</p>
+<pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"outer"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"inner"</span>&gt;</span>click me<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+</code></pre>
+<pre><code class="lang-js"><span class="hljs-built_in">document</span>
+  .getElementById(<span class="hljs-string">"outer"</span>)
+  .addEventListener(<span class="hljs-string">"click"</span>, (e) =&gt; <span class="hljs-built_in">console</span>.log(e));
+
+<span class="hljs-built_in">document</span>
+  .getElementById(<span class="hljs-string">"inner"</span>)
+  .addEventListener(<span class="hljs-string">"click"</span>, (e) =&gt; e.stopPropagation());
+</code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-11">
+    <section class="slide-content"><p>...and this</p>
+<pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"outer"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"inner"</span>&gt;</span>click me<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+</code></pre>
+<pre><code class="lang-js"><span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">"outer"</span>).addEventListener(<span class="hljs-string">"click"</span>, (e) =&gt; {
+  <span class="hljs-keyword">if</span> (e.target === e.currentTarget) <span class="hljs-built_in">console</span>.log(e);
+});
+
+<span class="hljs-built_in">document</span>
+  .getElementById(<span class="hljs-string">"inner"</span>)
+  .addEventListener(<span class="hljs-string">"click"</span>, (e) =&gt; <span class="hljs-built_in">console</span>.log(e));
+</code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-12">
+    <section class="slide-content"><p>...and this? (No, not really)</p>
+<pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"outer"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"inner"</span>&gt;</span>click me<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+</code></pre>
+<pre><code class="lang-js"><span class="hljs-built_in">document</span>
+  .getElementById(<span class="hljs-string">"outer"</span>)
+  .addEventListener(<span class="hljs-string">"click"</span>, (e) =&gt; <span class="hljs-built_in">console</span>.log(e));
+
+<span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">"inner"</span>).addEventListener(<span class="hljs-string">"click"</span>, (e) =&gt; {
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+});
+</code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-13">
+    <section class="slide-content"><p>But this is!</p>
+<pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"https://www.example.com/"</span> <span class="hljs-attr">onclick</span>=<span class="hljs-string">"return false"</span>&gt;</span>click me<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
+</code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-14">
+    <section class="slide-content"><p>so is this.</p>
+<pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"outer"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"inner"</span>&gt;</span>click me<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+</code></pre>
+<pre><code class="lang-js"><span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">"outer"</span>).addEventListener(<span class="hljs-string">"click"</span>, (e) =&gt; {
+  <span class="hljs-keyword">if</span> (!e.handled) <span class="hljs-built_in">console</span>.log(e);
+});
+
+<span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">"inner"</span>).addEventListener(<span class="hljs-string">"click"</span>, (e) =&gt; {
+  e.handled = <span class="hljs-literal">true</span>;
+});
+</code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-15">
+    <section class="slide-content"><h2 id="so-when-is-this-useful-">So when is this useful?</h2>
+<p><a href="file:///C:/tinkerspace/react-grid-exploration/src/dom_event_cancellation/without.html">Example app without event cancellation</a></p>
+<p><a href="file:///C:/tinkerspace/react-grid-exploration/src/dom_event_cancellation/with.html">Example app with stopPropagation</a></p>
+</section>
+  </div>
+  <div class="slide hidden  afaik" id="slide-16">
+    <section class="slide-content"><h2 id="the-two-flavors-of-event-handlers">The two &#39;flavors&#39; of event handlers</h2>
+<ul>
+<li>primary effects: the user expects only one primary effect to happen per event</li>
+<li>secondary effects: the user is usually unaware of secondary effects, but they are necessairy and omitting them constitutes a bug</li>
+</ul>
+<p>Hypothesis 1: all DOM event effects can be reasonably thought of as falling into one of the two categories</p>
+<p>Hypothesis 2: browser default actions are always primary effects in this regard</p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-17">
+    <section class="slide-content"><h2 id="in-our-online-banking-example">In our online banking example</h2>
+<ul>
+<li>session keep alive: secondary</li>
+<li>closing menu dropdown with clickaway: secondary</li>
+<li>menu button toggling menu dropdown: primary</li>
+<li>sorting columns: primary</li>
+<li>selecting column header: primary</li>
+<li>following a hyperlink: primary</li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-18">
+    <section class="slide-content"><p>so we need a mechanism that ensures only one primary effect runs, but all secondary effects are triggered nonetheless.</p>
+<p>we have the choice between two alternative solutions...</p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-19">
+    <section class="slide-content"><h2 id="alternative-1">alternative 1</h2>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-20">
+    <section class="slide-content"><ul>
+<li>1: using a <em>handled</em> flag in all primary effects; the standard <code>defaultPrevented</code> suits that purpose, no need for a non-standard property</li>
+</ul>
+<pre><code class="lang-js">.addEventListener(<span class="hljs-string">"click"</span>, (e) =&gt; {
+  <span class="hljs-keyword">if</span> (e.defaultPrevented) <span class="hljs-keyword">return</span>;
+
+  <span class="hljs-comment">// process event</span>
+  <span class="hljs-comment">// ...</span>
+  <span class="hljs-comment">// mark handled</span>
+  e.preventDefault();
+})
+</code></pre>
+<ul>
+<li>2: secondary effects need no special handling; but must never interfere with <code>defaultPrevented</code></li>
+</ul>
+<pre><code class="lang-js">.addEventListener(<span class="hljs-string">"click"</span>, (e) =&gt; {
+  <span class="hljs-keyword">if</span> (isOutside(e)) closeDropdown();
+})
+</code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-21">
+    <section class="slide-content"><h2 id="alternative-2">alternative 2</h2>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-22">
+    <section class="slide-content"><ul>
+<li>1: all primary effects must use the bubbling phase, and must call stopPropagation and additionally preventDefault</li>
+</ul>
+<pre><code class="lang-js">.addEventListener(<span class="hljs-string">"click"</span>, (e) =&gt; {
+  <span class="hljs-comment">// process event</span>
+  <span class="hljs-comment">// ...</span>
+  <span class="hljs-comment">// mark handled</span>
+  e.stopPropagation();
+  e.preventDefault();
+})
+</code></pre>
+<ul>
+<li>2: all secondary effects must use the capturing phase, and must never stopPropagation or preventDefault</li>
+</ul>
+<pre><code class="lang-js">.addEventListener(<span class="hljs-string">"click"</span>, (e) =&gt; {
+  <span class="hljs-keyword">if</span> (isOutside(e)) closeDropdown();
+}, { <span class="hljs-attr">capture</span>: <span class="hljs-literal">true</span> })
+</code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-23">
+    <section class="slide-content"><p>The two alternatives cannot be mixed</p>
+</section>
+  </div>
+  <div class="slide hidden  smaller-font" id="slide-24">
+    <section class="slide-content"><p>advantages of alternative 1:</p>
+<ul>
+<li>we are free to use either capturing or bubbling phase for any of our event handlers and can freely make use of this feature to tweak order of operations</li>
+<li>marking events as <em>handled</em> for primary effects only requires preventDefault and nothing more</li>
+<li>primary effects are handled uniformly - no matter whether they are browser default actions or user-land actions</li>
+<li>more forgiving if used incorrectly: the worst thing that can happen is that more than one primary effect is triggered, but not that secondary effects are prevented by accident</li>
+</ul>
+<p>disadvantages:</p>
+<ul>
+<li>primary effects must add a check before any processing code</li>
+<li>can be broken by misbehaving third-party code which uses stopPropagation</li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden  smaller-font" id="slide-25">
+    <section class="slide-content"><p>advantages of alternative 2:</p>
+<ul>
+<li>requires no check in any event handler, just do your thing and then kill off the event</li>
+</ul>
+<p>disadvantages:</p>
+<ul>
+<li>requires both stopPropagation and preventDefault to properly cancel primary effects</li>
+<li>forces all secondary effects into the capturing phase</li>
+<li>high risk of inadvertently sabotaging secondary effects</li>
+<li>erroneously stopping propagation in the capturing phase can even kill off secondary effects that have been registered correctly</li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden  opinion" id="slide-26">
+    <section class="slide-content"><p>I strongly favour the preventDefault approach.</p>
+<p>I believe we should never use stopPropagation anywhere.</p>
+<p>No matter which approach you choose, the selected approach should be explicitly stated in you developer documentation.</p>
+<p>And ideally an es-lint rule ensures all event handlers adhere to the chosen pattern.</p>
+<p>Each pattern - when followed strictly - guarantees correct event cancellation behavior.</p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-27">
+    <section class="slide-content"><p>both approaches work</p>
+<p><a href="file:///C:/tinkerspace/react-grid-exploration/src/dom_event_cancellation/with-stopPropagation.html">Example app with correct stopPropagation</a></p>
+<p><a href="file:///C:/tinkerspace/react-grid-exploration/src/dom_event_cancellation/with-preventDefault.html">Example app with correct preventDefault</a></p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-28">
+    <section class="slide-content"><h2 id="voices-from-the-web">voices from the web</h2>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-29">
+    <section class="slide-content"><blockquote>
+<p>In an ideal world, applications are built out of smaller components that do very little on their own but are highly reusable and combinable. For this to work, the recipe is simple yet very difficult to execute: each component must know nothing about the outside world.
+Therefore if a component needs to use stopPropagation(), it can only be because it knows that something further up the chain will break or that it will put your application into an undesirable state.
+In this case you should be asking yourself whether that is not a symptom of a design issue.
+<a href="https://stackoverflow.com/questions/54815439/when-is-good-practice-to-use-stoppropagation">stackoverflow</a></p>
+</blockquote>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-30">
+    <section class="slide-content"><p>Links:</p>
+<p>event propagation visualized: <a href="https://domevents.dev/">https://domevents.dev/</a></p>
+<p>&quot;The Dangers of Stopping Event Propagation&quot;: <a href="https://css-tricks.com/dangers-stopping-event-propagation/">https://css-tricks.com/dangers-stopping-event-propagation/</a></p>
+<p>Inspecting the propagation path: <a href="https://developer.mozilla.org/en-US/docs/Web/API/Event/composedPath">https://developer.mozilla.org/en-US/docs/Web/API/Event/composedPath</a></p>
+<!-- https://www.reddit.com/r/javascript/comments/7108dg/comment/dn92ubm/ --></section>
+  </div>
+
+  <div class="controls">
+    <div class="arrow prev"></div>
+    <div class="arrow next"></div>
+  </div>
+
+
+  <script type="text/javascript">
+    /**
+ * Returns the current page number of the presentation.
+ */
+function currentPosition() {
+  return parseInt(document.querySelector('.slide:not(.hidden)').id.slice(6));
+}
+
+
+/**
+ * Navigates forward n pages
+ * If n is negative, we will navigate in reverse
+ */
+function navigate(n) {
+  var position = currentPosition();
+  var numSlides = document.getElementsByClassName('slide').length;
+
+  /* Positions are 1-indexed, so we need to add and subtract 1 */
+  var nextPosition = (position - 1 + n) % numSlides + 1;
+
+  /* Normalize nextPosition in-case of a negative modulo result */
+  nextPosition = (nextPosition - 1 + numSlides) % numSlides + 1;
+
+  document.getElementById('slide-' + position).classList.add('hidden');
+  document.getElementById('slide-' + nextPosition).classList.remove('hidden');
+
+  updateProgress();
+  updateURL();
+  updateTabIndex();
+}
+
+
+/**
+ * Updates the current URL to include a hashtag of the current page number.
+ */
+function updateURL() {
+  try {
+    window.history.replaceState({} , null, '#' + currentPosition());
+  } catch (e) {
+    window.location.hash = currentPosition();
+  }
+}
+
+
+/**
+ * Sets the progress indicator.
+ */
+function updateProgress() {
+  var progressBar = document.querySelector('.progress-bar');
+
+  if (progressBar !== null) {
+    var numSlides = document.getElementsByClassName('slide').length;
+    var position = currentPosition() - 1;
+    var percent = (numSlides === 1) ? 100 : 100 * position / (numSlides - 1);
+    progressBar.style.width = percent.toString() + '%';
+  }
+}
+
+
+/**
+ * Removes tabindex property from all links on the current slide, sets
+ * tabindex = -1 for all links on other slides. Prevents slides from appearing
+ * out of control.
+ */
+function updateTabIndex() {
+  var allLinks = document.querySelectorAll('.slide a');
+  var position = currentPosition();
+  var currentPageLinks = document.getElementById('slide-' + position).querySelectorAll('a');
+  var i;
+
+  for (i = 0; i < allLinks.length; i++) {
+    allLinks[i].setAttribute('tabindex', -1);
+  }
+
+  for (i = 0; i < currentPageLinks.length; i++) {
+    currentPageLinks[i].removeAttribute('tabindex');
+  }
+}
+
+/**
+ * Determines whether or not we are currently in full screen mode
+ */
+function isFullScreen() {
+  return document.fullscreenElement ||
+         document.mozFullScreenElement ||
+         document.webkitFullscreenElement ||
+         document.msFullscreenElement;
+}
+
+/**
+ * Toggle fullScreen mode on document element.
+ * Works on chrome (>= 15), firefox (>= 9), ie (>= 11), opera(>= 12.1), safari (>= 5).
+ */
+function toggleFullScreen() {
+  /* Convenient renames */
+  var docElem = document.documentElement;
+  var doc = document;
+
+  docElem.requestFullscreen =
+      docElem.requestFullscreen ||
+      docElem.msRequestFullscreen ||
+      docElem.mozRequestFullScreen ||
+      docElem.webkitRequestFullscreen.bind(docElem, Element.ALLOW_KEYBOARD_INPUT);
+
+  doc.exitFullscreen =
+      doc.exitFullscreen ||
+      doc.msExitFullscreen ||
+      doc.mozCancelFullScreen ||
+      doc.webkitExitFullscreen;
+
+  isFullScreen() ? doc.exitFullscreen() : docElem.requestFullscreen();
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  // Update the tabindex to prevent weird slide transitioning
+  updateTabIndex();
+
+  // If the location hash specifies a page number, go to it.
+  var page = window.location.hash.slice(1);
+  if (page) {
+    navigate(parseInt(page) - 1);
+  }
+
+  document.onkeydown = function (e) {
+    var kc = e.keyCode;
+
+    // left, down, H, J, backspace, PgUp - BACK
+    // up, right, K, L, space, PgDn - FORWARD
+    // enter - FULLSCREEN
+    if (kc === 37 || kc === 40 || kc === 8 || kc === 72 || kc === 74 || kc === 33) {
+      navigate(-1);
+    } else if (kc === 38 || kc === 39 || kc === 32 || kc === 75 || kc === 76 || kc === 34) {
+      navigate(1);
+    } else if (kc === 13) {
+      toggleFullScreen();
+    }
+  };
+
+  if (document.querySelector('.next') && document.querySelector('.prev')) {
+    document.querySelector('.next').onclick = function (e) {
+      e.preventDefault();
+      navigate(1);
+    };
+
+    document.querySelector('.prev').onclick = function (e) {
+      e.preventDefault();
+      navigate(-1);
+    };
+  }
+});
+
+
+  </script>
+</body>
+</html>

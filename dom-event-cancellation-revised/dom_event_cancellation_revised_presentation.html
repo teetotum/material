@@ -1,0 +1,974 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <title>DOM Event Cancellation - pitfalls and solutions</title>
+  <style type="text/css">
+    body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #222;
+  font-size: 100%;
+}
+
+.slide {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 0; right: 0;
+  background-color: #f7f7f7;
+}
+
+.slide-content {
+  width: 800px;
+  height: 600px;
+  overflow: hidden;
+  margin: 80px auto 0 auto;
+  padding: 30px;
+
+  font-weight: 200;
+  font-size: 200%;
+  line-height: 1.375;
+}
+
+.controls {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+}
+
+.arrow {
+  width: 0; height: 0;
+  border: 30px solid #333;
+  float: left;
+  margin-right: 30px;
+
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.prev {
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+
+  border-left-width: 0;
+  border-right-width: 50px;
+}
+
+.next {
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  border-right-color: transparent;
+
+  border-left-width: 50px;
+  border-right-width: 0;
+}
+
+.prev:hover {
+  border-right-color: #888;
+  cursor: pointer;
+}
+
+.next:hover {
+  border-left-color: #888;
+  cursor: pointer;
+}
+
+h1 {
+  font-size: 300%;
+  line-height: 1.2;
+  text-align: center;
+  margin: 170px 0 0;
+}
+
+h2 {
+  font-size: 100%;
+  line-height: 1.2;
+  margin: 5px 0;
+  text-align: center;
+  font-weight: 200;
+}
+
+h3 {
+  font-size: 140%;
+  line-height: 1.2;
+  border-bottom: 1px solid #aaa;
+  margin: 0;
+  padding-bottom: 15px;
+}
+
+ul {
+  padding: 20px 0 0 60px;
+  font-weight: 200;
+  line-height: 1.375;
+}
+
+.author h1 {
+  font-size: 170%;
+  font-weight: 200;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.author h3 {
+  font-weight: 100;
+  text-align: center;
+  font-size: 95%;
+  border: none;
+}
+
+a {
+  text-decoration: none;
+  color: #44a4dd;
+}
+
+a:hover {
+  color: #66b5ff;
+}
+
+pre {
+  font-size: 60%;
+  line-height: 1.3;
+}
+
+.progress {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  z-index: 1;
+}
+
+.progress-bar {
+  width: 0%;
+  height: 3px;
+  background-color: #b4b4b4;
+
+  -webkit-transition: width 0.05s ease-out;
+  -moz-transition: width 0.05s ease-out;
+  -o-transition: width 0.05s ease-out;
+  transition: width 0.05s ease-out;
+}
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 850px) {
+
+  body {
+    font-size: 70%;
+  }
+
+  .slide-content {
+    width: auto;
+  }
+
+  img {
+    width: 100%;
+  }
+
+  h1 {
+    margin-top: 120px;
+  }
+
+  .prev, .prev:hover {
+    border-right-color: rgba(135, 135, 135, 0.5);
+  }
+
+  .next, .next:hover {
+    border-left-color: rgba(135, 135, 135, 0.5);
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 50%;
+    overflow: hidden;
+  }
+
+  .slide-content {
+    padding: 10px;
+    margin-top: 10px;
+    height: 340px;
+  }
+
+  h1 {
+    margin-top: 50px;
+  }
+
+  ul {
+    padding-left: 25px;
+  }
+}
+
+@media print {
+  * {
+    -webkit-print-color-adjust: exact;
+  }
+
+  @page {
+    size: letter;
+  }
+
+  .hidden {
+    display: inline;
+  }
+
+  html {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  body {
+    margin: 0 auto !important;
+    border: 0;
+    padding: 0;
+    float: none !important;
+    overflow: visible;
+    background: none !important;
+    font-size: 52%;
+  }
+
+  .progress, .controls {
+    display: none;
+  }
+
+  .slide {
+    position: static;
+  }
+
+  .slide-content {
+    border: 1px solid #222;
+    margin-top: 0;
+    margin-bottom: 40px;
+    height: 3.5in;
+    overflow: visible;
+  }
+
+  .slide:nth-child(even) {
+    /* 2 slides per page */
+    page-break-before: always;
+  }
+}
+
+/*
+
+github.com style (c) Vasily Polovnyov <vast@whiteants.net>
+
+*/
+
+.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 0.5em;
+  color: #333;
+  background: #f8f8f8;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: #998;
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-subst {
+  color: #333;
+  font-weight: bold;
+}
+
+.hljs-number,
+.hljs-literal,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag .hljs-attr {
+  color: #008080;
+}
+
+.hljs-string,
+.hljs-doctag {
+  color: #d14;
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-selector-id {
+  color: #900;
+  font-weight: bold;
+}
+
+.hljs-subst {
+  font-weight: normal;
+}
+
+.hljs-type,
+.hljs-class .hljs-title {
+  color: #458;
+  font-weight: bold;
+}
+
+.hljs-tag,
+.hljs-name,
+.hljs-attribute {
+  color: #000080;
+  font-weight: normal;
+}
+
+.hljs-regexp,
+.hljs-link {
+  color: #009926;
+}
+
+.hljs-symbol,
+.hljs-bullet {
+  color: #990073;
+}
+
+.hljs-built_in,
+.hljs-builtin-name {
+  color: #0086b3;
+}
+
+.hljs-meta {
+  color: #999;
+  font-weight: bold;
+}
+
+.hljs-deletion {
+  background: #fdd;
+}
+
+.hljs-addition {
+  background: #dfd;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+:root {
+  --opinion-color: #757de8;
+  --fact-color: #ffffff;
+}
+
+.sequence {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+
+  & > * {
+    transition: all 1000ms ease-in-out;
+  }
+}
+
+.cancelling {
+  position: relative;
+  padding-top: 40px;
+  &::before {
+    content: "-";
+    color: white;
+    background-color: crimson;
+    font-size: 30px;
+    line-height: 20px;
+    display: flex;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+  }
+}
+
+.item {
+  position: relative;
+  text-align: center;
+  width: 260px;
+  padding-top: 120px;
+
+  &::before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 50px;
+    width: 100%;
+    height: 0;
+    border-bottom: 4px solid black;
+  }
+
+  &::after {
+    content: "";
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 80px;
+    align-items: center;
+    justify-content: center;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    font-size: 1rem;
+    margin-inline: auto;
+  }
+
+  &.primary::after {
+    content: "primary";
+    background-color: rgb(26, 81, 182);
+    color: white;
+  }
+
+  &.secondary::after {
+    content: "secondary";
+    background-color: rgb(25, 153, 100);
+    color: white;
+  }
+
+  &.move-to-first {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .cancelling ~ &:not(.move-to-first) {
+    opacity: 0.3;
+  }
+}
+
+.opinion {
+  background-color: var(--opinion-color);
+  color: white;
+}
+
+.centered-text {
+  text-align: center;
+}
+
+.fit-image {
+  img {
+    height: 480px;
+  }
+}
+
+.white-bg {
+  background-color: white;
+}
+
+.afaik {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--fact-color),
+    var(--fact-color) 20px,
+    var(--opinion-color) 20px,
+    var(--opinion-color) 40px
+  );
+}
+
+.afaik > * {
+  background-color: var(--opinion-color);
+  color: white;
+}
+
+.smaller-font {
+  font-size: 10px;
+}
+
+.lower-half {
+  position: fixed;
+  width: 100%;
+  left: 0;
+  height: 1000px;
+  text-align: center;
+  padding-top: 20px;
+}
+
+.slide {
+  h1 {
+    font-size: 200%;
+  }
+}
+
+.slide-content {
+}
+
+.vertical-split .slide-content {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  width: auto;
+  height: 100%;
+  grid-template-columns: 1fr 1fr;
+}
+
+.vertical-split .slide-content:has(:nth-child(3)) {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.vertical-split .slide-content > * {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+  </style>
+    <script async src="http://localhost:35729/livereload.js"></script>
+</head>
+<body>
+  
+  <div class="slide" id="slide-1">
+    <section class="slide-content"><p>Martin Winkler<br>
+twitter: <code>@winkler_12</code><br>
+mastodon: <code>@mwinkler</code><br>
+blog: <code>https://dev.to/teetotum</code><br>
+github: <code>https://github.com/teetotum</code><br></p>
+</section>
+  </div>
+  <div class="slide hidden  centered-text" id="slide-2">
+    <section class="slide-content"><h1 id="dom-event-cancellation">DOM Event Cancellation</h1>
+<p>pitfalls and solutions</p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-3">
+    <section class="slide-content"><p>Apology.</p>
+<p>Should&#39;ve called it <em>DOM Event Handledness</em></p>
+</section>
+  </div>
+  <div class="slide hidden  centered-text fit-image" id="slide-4">
+    <section class="slide-content"><p><img src="./listener_hierarchy.png" alt="image"></p>
+</section>
+  </div>
+  <div class="slide hidden  centered-text" id="slide-5">
+    <section class="slide-content"><p>When would I need that?</p>
+<p><a href="file:///C:/tinkerspace/material/dom-event-cancellation-revised/piggybank.html">Example app</a></p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-6">
+    <section class="slide-content"><h2 id="event-cancellation-or-handledness-">Event Cancellation (or Handledness)</h2>
+<p>I found no official guidance.</p>
+<p>MDN calls <code>e.preventDefault()</code> <em>cancelling</em> an event.</p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-7">
+    <section class="slide-content"><p>Fictitious example: Online Banking App</p>
+<ul>
+<li>any click or key down event resets session timeout</li>
+<li>column headers can be selected</li>
+<li>account transactions table can be sorted</li>
+<li>any dropdowns and popups close when clicks occur outside</li>
+<li>any dropdowns and popups can be closed with &#39;Esc&#39;</li>
+<li>nested dropdowns and popups close before outer ones</li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-8">
+    <section class="slide-content"><ul>
+<li>any click or key down event resets session timeout</li>
+</ul>
+<pre><code class="lang-js"><span class="hljs-keyword">const</span> resetSessionTimeout = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  secondsTillLockout = sessionTimeoutSeconds;
+  updateTimeoutUI();
+};
+<span class="hljs-built_in">document</span>.documentElement.addEventListener(<span class="hljs-string">"click"</span>, resetSessionTimeout);
+<span class="hljs-built_in">document</span>.documentElement.addEventListener(<span class="hljs-string">"keydown"</span>, resetSessionTimeout);
+</code></pre>
+<p>should always run - for any click or keydown</p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-9">
+    <section class="slide-content"><ul>
+<li>column headers can be selected</li>
+<li>account transactions table can be sorted</li>
+</ul>
+<pre><code class="lang-js">colHeader.addEventListener(<span class="hljs-string">"click"</span>, (e) =&gt; {
+  colHeader.classList.toggle(<span class="hljs-string">"selected"</span>);
+});
+
+colHeader.querySelector(<span class="hljs-string">".sort-asc"</span>).addEventListener(<span class="hljs-string">"click"</span>, (e) =&gt; {
+  rows.sort(<span class="hljs-function">(<span class="hljs-params">a, b</span>) =&gt;</span> comparer(a, b));
+  tBody.append(...rows);
+});
+</code></pre>
+<p>needs a condition - only one of the two should ever run</p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-10">
+    <section class="slide-content"><ul>
+<li>any dropdowns and popups close when clicks occur outside</li>
+</ul>
+<pre><code class="lang-js"><span class="hljs-keyword">const</span> mightClose = <span class="hljs-function">(<span class="hljs-params">e</span>) =&gt;</span> {
+  <span class="hljs-keyword">if</span> (!popup.contains(e.target)) close();
+};
+<span class="hljs-built_in">document</span>.documentElement.addEventListener(<span class="hljs-string">"click"</span>, mightClose);
+</code></pre>
+<p>should always run - for any click</p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-11">
+    <section class="slide-content"><ul>
+<li>any dropdowns and popups can be closed with &#39;Esc&#39;</li>
+<li>nested dropdowns and popups close before outer ones</li>
+</ul>
+<pre><code class="lang-js"><span class="hljs-comment">// popup code</span>
+<span class="hljs-keyword">const</span> handleEscape = <span class="hljs-function">(<span class="hljs-params">e</span>) =&gt;</span> {
+  <span class="hljs-keyword">if</span> (e.key === <span class="hljs-string">"Escape"</span> &amp;&amp; isOpen) {
+    close(e);
+  }
+};
+popup.addEventListener(<span class="hljs-string">"keydown"</span>, handleEscape);
+</code></pre>
+<pre><code class="lang-js"><span class="hljs-comment">// dropdown code</span>
+<span class="hljs-keyword">const</span> handleEscape = <span class="hljs-function">(<span class="hljs-params">e</span>) =&gt;</span> {
+  <span class="hljs-keyword">if</span> (e.key === <span class="hljs-string">"Escape"</span> &amp;&amp; isOpen) {
+    close(e);
+  }
+};
+dropdown.addEventListener(<span class="hljs-string">"keydown"</span>, handleEscape);
+</code></pre>
+<p>needs a condition - only one of the two should ever run</p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-12">
+    <section class="slide-content"><h2 id="observation">Observation</h2>
+<p>Two categories of event<code>*</code> listeners:</p>
+<ul>
+<li>Those whose effect depends on the event being unhandled</li>
+<li>And those whose effect fires unconditionally</li>
+</ul>
+<p>I postulate: All event<code>*</code> listeners fall into one of the two categories.</p>
+<hr />
+
+<p><code>*</code> Only regarding browser generated events. Custom events could exhibit a completely different nature, I don&#39;t have enough data to form an opinion yet.</p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-13">
+    <section class="slide-content"><p>First Category:</p>
+<ul>
+<li>usually the effect directly intended by the user</li>
+<li>mental model: one user action =&gt; one direct effect</li>
+<li>therefore a dual effect would be confusing</li>
+</ul>
+<p>=&gt; <em>Primary Effect</em></p>
+<ul>
+<li>Browser default actions always count as Primary Effects</li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-14">
+    <section class="slide-content"><p>Second Category:</p>
+<ul>
+<li>usually some form of bookkeeping / housekeeping</li>
+<li>side effects of user interaction</li>
+<li>the user might be unaware of the effect</li>
+<li>any number of unrelated bookkeeping tasks possible</li>
+<li>we don&#39;t want to omit any one of them</li>
+</ul>
+<p>=&gt; <em>Secondary Effect</em></p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-15">
+    <section class="slide-content"><p>Cancellation must ensure that:</p>
+<ul>
+<li>at most one Primary Effect runs</li>
+<li>all Secondary Effects run</li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-16">
+    <section class="slide-content"><h2 id="two-different-approaches">Two different approaches</h2>
+</section>
+  </div>
+  <div class="slide hidden  fit-image" id="slide-17">
+    <section class="slide-content"><p>First Approach: First listener decides for all later listeners</p>
+<pre><code class="lang-js"><span class="hljs-keyword">const</span> handleEscape = <span class="hljs-function">(<span class="hljs-params">e</span>) =&gt;</span> {
+  <span class="hljs-keyword">if</span> (e.key === <span class="hljs-string">"Escape"</span> &amp;&amp; isOpen) {
+    close(e);
+    e.stopPropagation();
+  }
+};
+</code></pre>
+<p>Pitfalls:</p>
+<ul>
+<li>this would also prevent Secondary Effects.</li>
+<li><code>stopPropagation()</code> does not prevent browser default actions, so we would still need to call <code>preventDefault()</code> in addition for events that could trigger a browser default action.</li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden  fit-image" id="slide-18">
+    <section class="slide-content"><p><img src="./with_stopPropagation.png" alt="image"></p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-19">
+    <section class="slide-content"><div class="sequence" >
+<div class="item primary">close dropdown</div>
+<div class="cancelling"></div>
+<div class="item primary">close dialog</div>
+<div class="item secondary" onclick="this.classList.add('move-to-first')">refresh session</div>
+</div></section>
+  </div>
+  <div class="slide hidden  fit-image" id="slide-20">
+    <section class="slide-content"><p>Two event phases: Capturing and Bubbling</p>
+<p><img src="./capturing_and_bubbling.png" alt="image"></p>
+</section>
+  </div>
+  <div class="slide hidden  fit-image" id="slide-21">
+    <section class="slide-content"><p>Switch all Secondary Effects over to the Capturing phase</p>
+<p><img src="./switched_over_and_stop_propagation.png" alt="image"></p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-22">
+    <section class="slide-content"><p>Conclusion for first approach</p>
+<ul>
+<li>actually works</li>
+<li>MUST have all Primary Effects in the Bubbling phase</li>
+<li>MUST have all Secondary Effects in the Capturing phase</li>
+<li>Primary Effects must call <code>stopPropagation</code> (and <code>preventDefault</code>)</li>
+<li>Secondary Effects must never call <code>stopPropagation</code></li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden  fit-image" id="slide-23">
+    <section class="slide-content"><p>Second Approach: Each listern decides for itself</p>
+<p><img src="./with_inspection.png" alt="image"></p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-24">
+    <section class="slide-content"><p><em>Primary Effect</em> event listeners must inspect a flag on the event arguments object, decide what to do, and set the flag if they handled the event.</p>
+<p>A natural candidate for such a flag is <code>defaultPrevented</code></p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-25">
+    <section class="slide-content"><pre><code class="lang-js"><span class="hljs-keyword">const</span> handleEscape = <span class="hljs-function">(<span class="hljs-params">e</span>) =&gt;</span> {
+  <span class="hljs-keyword">if</span> (e.key === <span class="hljs-string">"Escape"</span> &amp;&amp; isOpen &amp;&amp; !e.defaultPrevented) {
+    close(e);
+    e.preventDefault();
+  }
+};
+</code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-26">
+    <section class="slide-content"><p>Conclusion for second approach</p>
+<ul>
+<li>actually works</li>
+<li>keeps both event phases available for implementors to tweak listener order for any reason</li>
+<li>Primary Effects MUST inspect <code>defaultPrevented</code></li>
+<li>Primary Effects MUST call <code>preventDefault</code> if handling the event</li>
+<li>Secondary Effects must never call <code>preventDefault</code></li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-27">
+    <section class="slide-content"><p>Pro &amp; Con</p>
+<ul>
+<li>First approach is probably used more frequently and might be used by the UI library you rely on</li>
+<li>Second approach affords us greater flexibility</li>
+<li>Second approach doesn&#39;t need special handling for brower default actions</li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-28">
+    <section class="slide-content"><p>What about <code>cancelable</code>?</p>
+<p>All standard DOM events are cancelable.
+But this can be used with custom events to allow communication whether an intended action should proceed:</p>
+<pre><code class="lang-js"><span class="hljs-keyword">if</span> (
+  <span class="hljs-keyword">this</span>.dispatchEvent(
+    <span class="hljs-keyword">new</span> Event(<span class="hljs-string">"try_close"</span>, { <span class="hljs-attr">cancelable</span>: <span class="hljs-literal">true</span>, <span class="hljs-attr">bubbles</span>: <span class="hljs-literal">true</span> })
+  )
+) {
+  <span class="hljs-keyword">this</span>.close();
+  <span class="hljs-keyword">this</span>.dispatchEvent(<span class="hljs-keyword">new</span> Event(<span class="hljs-string">"closed"</span>, { <span class="hljs-attr">bubbles</span>: <span class="hljs-literal">true</span> }));
+} <span class="hljs-keyword">else</span> {
+  <span class="hljs-keyword">this</span>.dispatchEvent(<span class="hljs-keyword">new</span> Event(<span class="hljs-string">"close_cancelled"</span>, { <span class="hljs-attr">bubbles</span>: <span class="hljs-literal">true</span> }));
+}
+</code></pre>
+<p>The condition would be <code>false</code> if any listener would have called <code>e.preventDefault</code>.</p>
+<p>Whether this rules out the second approach I cannot tell.</p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-29">
+    <section class="slide-content"><p>What about <code>passive</code>?</p>
+<p>Listeners can be declared <code>passive</code> to signal to the browser that they don&#39;t call <code>preventDefault</code> so the browser could run the default action before event propagation.
+For example: to ensure smooth scolling behavior it is recommended to mark all <code>scroll</code> listeners as <code>passive</code>.</p>
+<p>For the second approach this would mean that all Secondary Effects could safely be marked <code>passive</code>, but that none of the Primary Effects could ever be marked <code>passive</code>.</p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-30">
+    <section class="slide-content"><p>What about <code>shadow DOM</code>?</p>
+<p>We should be able to receive UA generated events originating in the shadown DOM.</p>
+<p>It seems some interactive elements using a shadow DOM currently swallow events, like <code>&lt;input type=&quot;date&quot;&gt;</code>, we get neither the Capturing nor the Bubbling phase.</p>
+<p>&quot;Date Picker popup doesn&#39;t propagate shadow DOM events into the light DOM&quot;</p>
+<p><a href="https://github.com/whatwg/html/issues/10343">https://github.com/whatwg/html/issues/10343</a></p>
+<p>Custom web component authors have the option to make DOM events from the shadow DOM visible to listeners in the regular DOM via <code>composed</code> + <code>bubbles</code>.</p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-31">
+    <section class="slide-content"><p>revisit the banking app?</p>
+</section>
+  </div>
+
+  <div class="controls">
+    <div class="arrow prev"></div>
+    <div class="arrow next"></div>
+  </div>
+
+
+  <script type="text/javascript">
+    /**
+ * Returns the current page number of the presentation.
+ */
+function currentPosition() {
+  return parseInt(document.querySelector('.slide:not(.hidden)').id.slice(6));
+}
+
+
+/**
+ * Navigates forward n pages
+ * If n is negative, we will navigate in reverse
+ */
+function navigate(n) {
+  var position = currentPosition();
+  var numSlides = document.getElementsByClassName('slide').length;
+
+  /* Positions are 1-indexed, so we need to add and subtract 1 */
+  var nextPosition = (position - 1 + n) % numSlides + 1;
+
+  /* Normalize nextPosition in-case of a negative modulo result */
+  nextPosition = (nextPosition - 1 + numSlides) % numSlides + 1;
+
+  document.getElementById('slide-' + position).classList.add('hidden');
+  document.getElementById('slide-' + nextPosition).classList.remove('hidden');
+
+  updateProgress();
+  updateURL();
+  updateTabIndex();
+}
+
+
+/**
+ * Updates the current URL to include a hashtag of the current page number.
+ */
+function updateURL() {
+  try {
+    window.history.replaceState({} , null, '#' + currentPosition());
+  } catch (e) {
+    window.location.hash = currentPosition();
+  }
+}
+
+
+/**
+ * Sets the progress indicator.
+ */
+function updateProgress() {
+  var progressBar = document.querySelector('.progress-bar');
+
+  if (progressBar !== null) {
+    var numSlides = document.getElementsByClassName('slide').length;
+    var position = currentPosition() - 1;
+    var percent = (numSlides === 1) ? 100 : 100 * position / (numSlides - 1);
+    progressBar.style.width = percent.toString() + '%';
+  }
+}
+
+
+/**
+ * Removes tabindex property from all links on the current slide, sets
+ * tabindex = -1 for all links on other slides. Prevents slides from appearing
+ * out of control.
+ */
+function updateTabIndex() {
+  var allLinks = document.querySelectorAll('.slide a');
+  var position = currentPosition();
+  var currentPageLinks = document.getElementById('slide-' + position).querySelectorAll('a');
+  var i;
+
+  for (i = 0; i < allLinks.length; i++) {
+    allLinks[i].setAttribute('tabindex', -1);
+  }
+
+  for (i = 0; i < currentPageLinks.length; i++) {
+    currentPageLinks[i].removeAttribute('tabindex');
+  }
+}
+
+/**
+ * Determines whether or not we are currently in full screen mode
+ */
+function isFullScreen() {
+  return document.fullscreenElement ||
+         document.mozFullScreenElement ||
+         document.webkitFullscreenElement ||
+         document.msFullscreenElement;
+}
+
+/**
+ * Toggle fullScreen mode on document element.
+ * Works on chrome (>= 15), firefox (>= 9), ie (>= 11), opera(>= 12.1), safari (>= 5).
+ */
+function toggleFullScreen() {
+  /* Convenient renames */
+  var docElem = document.documentElement;
+  var doc = document;
+
+  docElem.requestFullscreen =
+      docElem.requestFullscreen ||
+      docElem.msRequestFullscreen ||
+      docElem.mozRequestFullScreen ||
+      docElem.webkitRequestFullscreen.bind(docElem, Element.ALLOW_KEYBOARD_INPUT);
+
+  doc.exitFullscreen =
+      doc.exitFullscreen ||
+      doc.msExitFullscreen ||
+      doc.mozCancelFullScreen ||
+      doc.webkitExitFullscreen;
+
+  isFullScreen() ? doc.exitFullscreen() : docElem.requestFullscreen();
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  // Update the tabindex to prevent weird slide transitioning
+  updateTabIndex();
+
+  // If the location hash specifies a page number, go to it.
+  var page = window.location.hash.slice(1);
+  if (page) {
+    navigate(parseInt(page) - 1);
+  }
+
+  document.onkeydown = function (e) {
+    var kc = e.keyCode;
+
+    // left, down, H, J, backspace, PgUp - BACK
+    // up, right, K, L, space, PgDn - FORWARD
+    // enter - FULLSCREEN
+    if (kc === 37 || kc === 40 || kc === 8 || kc === 72 || kc === 74 || kc === 33) {
+      navigate(-1);
+    } else if (kc === 38 || kc === 39 || kc === 32 || kc === 75 || kc === 76 || kc === 34) {
+      navigate(1);
+    } else if (kc === 13) {
+      toggleFullScreen();
+    }
+  };
+
+  if (document.querySelector('.next') && document.querySelector('.prev')) {
+    document.querySelector('.next').onclick = function (e) {
+      e.preventDefault();
+      navigate(1);
+    };
+
+    document.querySelector('.prev').onclick = function (e) {
+      e.preventDefault();
+      navigate(-1);
+    };
+  }
+});
+
+
+  </script>
+</body>
+</html>

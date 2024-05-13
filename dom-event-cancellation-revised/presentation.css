@@ -1,0 +1,158 @@
+:root {
+  --opinion-color: #757de8;
+  --fact-color: #ffffff;
+}
+
+.sequence {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+
+  & > * {
+    transition: all 1000ms ease-in-out;
+  }
+}
+
+.cancelling {
+  position: relative;
+  padding-top: 40px;
+  &::before {
+    content: "-";
+    color: white;
+    background-color: crimson;
+    font-size: 30px;
+    line-height: 20px;
+    display: flex;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+  }
+}
+
+.item {
+  position: relative;
+  text-align: center;
+  width: 260px;
+  padding-top: 120px;
+
+  &::before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 50px;
+    width: 100%;
+    height: 0;
+    border-bottom: 4px solid black;
+  }
+
+  &::after {
+    content: "";
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 80px;
+    align-items: center;
+    justify-content: center;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    font-size: 1rem;
+    margin-inline: auto;
+  }
+
+  &.primary::after {
+    content: "primary";
+    background-color: rgb(26, 81, 182);
+    color: white;
+  }
+
+  &.secondary::after {
+    content: "secondary";
+    background-color: rgb(25, 153, 100);
+    color: white;
+  }
+
+  &.move-to-first {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .cancelling ~ &:not(.move-to-first) {
+    opacity: 0.3;
+  }
+}
+
+.opinion {
+  background-color: var(--opinion-color);
+  color: white;
+}
+
+.centered-text {
+  text-align: center;
+}
+
+.fit-image {
+  img {
+    height: 480px;
+  }
+}
+
+.white-bg {
+  background-color: white;
+}
+
+.afaik {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--fact-color),
+    var(--fact-color) 20px,
+    var(--opinion-color) 20px,
+    var(--opinion-color) 40px
+  );
+}
+
+.afaik > * {
+  background-color: var(--opinion-color);
+  color: white;
+}
+
+.smaller-font {
+  font-size: 10px;
+}
+
+.lower-half {
+  position: fixed;
+  width: 100%;
+  left: 0;
+  height: 1000px;
+  text-align: center;
+  padding-top: 20px;
+}
+
+.slide {
+  h1 {
+    font-size: 200%;
+  }
+}
+
+.slide-content {
+}
+
+.vertical-split .slide-content {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  width: auto;
+  height: 100%;
+  grid-template-columns: 1fr 1fr;
+}
+
+.vertical-split .slide-content:has(:nth-child(3)) {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.vertical-split .slide-content > * {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
