@@ -361,6 +361,10 @@ github.com style (c) Vasily Polovnyov <vast@whiteants.net>
   --fact-color: #ffffff;
 }
 
+pre {
+  font-size: 70%;
+}
+
 .sequence {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -516,45 +520,41 @@ github.com style (c) Vasily Polovnyov <vast@whiteants.net>
 }
 
   </style>
-    <script async src="http://localhost:35729/livereload.js"></script>
 </head>
 <body>
   
-  <div class="slide" id="slide-1">
+  <div class="slide  centered-text" id="slide-1">
+    <section class="slide-content"><h1 id="dom-event-cancellation">DOM Event Cancellation</h1>
+<p>pitfalls and solutions</p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-2">
     <section class="slide-content"><p>Martin Winkler<br>
 twitter: <code>@winkler_12</code><br>
 mastodon: <code>@mwinkler</code><br>
 blog: <code>https://dev.to/teetotum</code><br>
 github: <code>https://github.com/teetotum</code><br></p>
+<p>material for this talk: <a href="https://github.com/teetotum/material/tree/master/dom-event-cancellation-revised">https://github.com/teetotum/material/tree/master/dom-event-cancellation-revised</a></p>
 </section>
   </div>
-  <div class="slide hidden  centered-text" id="slide-2">
-    <section class="slide-content"><h1 id="dom-event-cancellation">DOM Event Cancellation</h1>
-<p>pitfalls and solutions</p>
-</section>
-  </div>
-  <div class="slide hidden" id="slide-3">
-    <section class="slide-content"><p>Apology.</p>
-<p>Should&#39;ve called it <em>DOM Event Handledness</em></p>
-</section>
-  </div>
-  <div class="slide hidden  centered-text fit-image" id="slide-4">
+  <div class="slide hidden  centered-text fit-image" id="slide-3">
     <section class="slide-content"><p><img src="./listener_hierarchy.png" alt="image"></p>
 </section>
   </div>
+  <div class="slide hidden" id="slide-4">
+    <section class="slide-content"><p>Apology.</p>
+<p>Should&#39;ve called it <em>DOM Event Handledness</em></p>
+<p>(MDN calls only <code>e.preventDefault()</code> <em>cancelling</em> an event.)</p>
+</section>
+  </div>
   <div class="slide hidden  centered-text" id="slide-5">
-    <section class="slide-content"><p>When would I need that?</p>
+    <section class="slide-content"><h2 id="event-cancellation-or-handledness-">Event Cancellation (or Handledness)</h2>
+<p>When would I need that?</p>
 <p><a href="file:///C:/tinkerspace/material/dom-event-cancellation-revised/piggybank.html">Example app</a></p>
 </section>
   </div>
   <div class="slide hidden" id="slide-6">
-    <section class="slide-content"><h2 id="event-cancellation-or-handledness-">Event Cancellation (or Handledness)</h2>
-<p>I found no official guidance.</p>
-<p>MDN calls <code>e.preventDefault()</code> <em>cancelling</em> an event.</p>
-</section>
-  </div>
-  <div class="slide hidden" id="slide-7">
-    <section class="slide-content"><p>Fictitious example: Online Banking App</p>
+    <section class="slide-content"><p>Event listeners in the fictitious online banking app</p>
 <ul>
 <li>any click or key down event resets session timeout</li>
 <li>column headers can be selected</li>
@@ -565,7 +565,7 @@ github: <code>https://github.com/teetotum</code><br></p>
 </ul>
 </section>
   </div>
-  <div class="slide hidden" id="slide-8">
+  <div class="slide hidden" id="slide-7">
     <section class="slide-content"><ul>
 <li>any click or key down event resets session timeout</li>
 </ul>
@@ -579,7 +579,7 @@ github: <code>https://github.com/teetotum</code><br></p>
 <p>should always run - for any click or keydown</p>
 </section>
   </div>
-  <div class="slide hidden" id="slide-9">
+  <div class="slide hidden" id="slide-8">
     <section class="slide-content"><ul>
 <li>column headers can be selected</li>
 <li>account transactions table can be sorted</li>
@@ -596,7 +596,7 @@ colHeader.querySelector(<span class="hljs-string">".sort-asc"</span>).addEventLi
 <p>needs a condition - only one of the two should ever run</p>
 </section>
   </div>
-  <div class="slide hidden" id="slide-10">
+  <div class="slide hidden" id="slide-9">
     <section class="slide-content"><ul>
 <li>any dropdowns and popups close when clicks occur outside</li>
 </ul>
@@ -608,7 +608,7 @@ colHeader.querySelector(<span class="hljs-string">".sort-asc"</span>).addEventLi
 <p>should always run - for any click</p>
 </section>
   </div>
-  <div class="slide hidden" id="slide-11">
+  <div class="slide hidden" id="slide-10">
     <section class="slide-content"><ul>
 <li>any dropdowns and popups can be closed with &#39;Esc&#39;</li>
 <li>nested dropdowns and popups close before outer ones</li>
@@ -632,7 +632,7 @@ dropdown.addEventListener(<span class="hljs-string">"keydown"</span>, handleEsca
 <p>needs a condition - only one of the two should ever run</p>
 </section>
   </div>
-  <div class="slide hidden" id="slide-12">
+  <div class="slide hidden" id="slide-11">
     <section class="slide-content"><h2 id="observation">Observation</h2>
 <p>Two categories of event<code>*</code> listeners:</p>
 <ul>
@@ -645,7 +645,7 @@ dropdown.addEventListener(<span class="hljs-string">"keydown"</span>, handleEsca
 <p><code>*</code> Only regarding browser generated events. Custom events could exhibit a completely different nature, I don&#39;t have enough data to form an opinion yet.</p>
 </section>
   </div>
-  <div class="slide hidden" id="slide-13">
+  <div class="slide hidden" id="slide-12">
     <section class="slide-content"><p>First Category:</p>
 <ul>
 <li>usually the effect directly intended by the user</li>
@@ -658,7 +658,7 @@ dropdown.addEventListener(<span class="hljs-string">"keydown"</span>, handleEsca
 </ul>
 </section>
   </div>
-  <div class="slide hidden" id="slide-14">
+  <div class="slide hidden" id="slide-13">
     <section class="slide-content"><p>Second Category:</p>
 <ul>
 <li>usually some form of bookkeeping / housekeeping</li>
@@ -670,7 +670,7 @@ dropdown.addEventListener(<span class="hljs-string">"keydown"</span>, handleEsca
 <p>=&gt; <em>Secondary Effect</em></p>
 </section>
   </div>
-  <div class="slide hidden" id="slide-15">
+  <div class="slide hidden" id="slide-14">
     <section class="slide-content"><p>Cancellation must ensure that:</p>
 <ul>
 <li>at most one Primary Effect runs</li>
@@ -678,11 +678,11 @@ dropdown.addEventListener(<span class="hljs-string">"keydown"</span>, handleEsca
 </ul>
 </section>
   </div>
-  <div class="slide hidden" id="slide-16">
+  <div class="slide hidden" id="slide-15">
     <section class="slide-content"><h2 id="two-different-approaches">Two different approaches</h2>
 </section>
   </div>
-  <div class="slide hidden  fit-image" id="slide-17">
+  <div class="slide hidden  fit-image" id="slide-16">
     <section class="slide-content"><p>First Approach: First listener decides for all later listeners</p>
 <pre><code class="lang-js"><span class="hljs-keyword">const</span> handleEscape = <span class="hljs-function">(<span class="hljs-params">e</span>) =&gt;</span> {
   <span class="hljs-keyword">if</span> (e.key === <span class="hljs-string">"Escape"</span> &amp;&amp; isOpen) {
@@ -698,11 +698,11 @@ dropdown.addEventListener(<span class="hljs-string">"keydown"</span>, handleEsca
 </ul>
 </section>
   </div>
-  <div class="slide hidden  fit-image" id="slide-18">
+  <div class="slide hidden  fit-image" id="slide-17">
     <section class="slide-content"><p><img src="./with_stopPropagation.png" alt="image"></p>
 </section>
   </div>
-  <div class="slide hidden" id="slide-19">
+  <div class="slide hidden" id="slide-18">
     <section class="slide-content"><div class="sequence" >
 <div class="item primary">close dropdown</div>
 <div class="cancelling"></div>
@@ -710,17 +710,17 @@ dropdown.addEventListener(<span class="hljs-string">"keydown"</span>, handleEsca
 <div class="item secondary" onclick="this.classList.add('move-to-first')">refresh session</div>
 </div></section>
   </div>
-  <div class="slide hidden  fit-image" id="slide-20">
+  <div class="slide hidden  fit-image" id="slide-19">
     <section class="slide-content"><p>Two event phases: Capturing and Bubbling</p>
 <p><img src="./capturing_and_bubbling.png" alt="image"></p>
 </section>
   </div>
-  <div class="slide hidden  fit-image" id="slide-21">
+  <div class="slide hidden  fit-image" id="slide-20">
     <section class="slide-content"><p>Switch all Secondary Effects over to the Capturing phase</p>
 <p><img src="./switched_over_and_stop_propagation.png" alt="image"></p>
 </section>
   </div>
-  <div class="slide hidden" id="slide-22">
+  <div class="slide hidden" id="slide-21">
     <section class="slide-content"><p>Conclusion for first approach</p>
 <ul>
 <li>actually works</li>
@@ -731,17 +731,17 @@ dropdown.addEventListener(<span class="hljs-string">"keydown"</span>, handleEsca
 </ul>
 </section>
   </div>
-  <div class="slide hidden  fit-image" id="slide-23">
+  <div class="slide hidden  fit-image" id="slide-22">
     <section class="slide-content"><p>Second Approach: Each listern decides for itself</p>
 <p><img src="./with_inspection.png" alt="image"></p>
 </section>
   </div>
-  <div class="slide hidden" id="slide-24">
+  <div class="slide hidden" id="slide-23">
     <section class="slide-content"><p><em>Primary Effect</em> event listeners must inspect a flag on the event arguments object, decide what to do, and set the flag if they handled the event.</p>
 <p>A natural candidate for such a flag is <code>defaultPrevented</code></p>
 </section>
   </div>
-  <div class="slide hidden" id="slide-25">
+  <div class="slide hidden" id="slide-24">
     <section class="slide-content"><pre><code class="lang-js"><span class="hljs-keyword">const</span> handleEscape = <span class="hljs-function">(<span class="hljs-params">e</span>) =&gt;</span> {
   <span class="hljs-keyword">if</span> (e.key === <span class="hljs-string">"Escape"</span> &amp;&amp; isOpen &amp;&amp; !e.defaultPrevented) {
     close(e);
@@ -751,7 +751,7 @@ dropdown.addEventListener(<span class="hljs-string">"keydown"</span>, handleEsca
 </code></pre>
 </section>
   </div>
-  <div class="slide hidden" id="slide-26">
+  <div class="slide hidden" id="slide-25">
     <section class="slide-content"><p>Conclusion for second approach</p>
 <ul>
 <li>actually works</li>
@@ -762,7 +762,7 @@ dropdown.addEventListener(<span class="hljs-string">"keydown"</span>, handleEsca
 </ul>
 </section>
   </div>
-  <div class="slide hidden" id="slide-27">
+  <div class="slide hidden" id="slide-26">
     <section class="slide-content"><p>Pro &amp; Con</p>
 <ul>
 <li>First approach is probably used more frequently and might be used by the UI library you rely on</li>
@@ -771,7 +771,7 @@ dropdown.addEventListener(<span class="hljs-string">"keydown"</span>, handleEsca
 </ul>
 </section>
   </div>
-  <div class="slide hidden" id="slide-28">
+  <div class="slide hidden" id="slide-27">
     <section class="slide-content"><p>What about <code>cancelable</code>?</p>
 <p>All standard DOM events are cancelable.
 But this can be used with custom events to allow communication whether an intended action should proceed:</p>
@@ -790,23 +790,22 @@ But this can be used with custom events to allow communication whether an intend
 <p>Whether this rules out the second approach I cannot tell.</p>
 </section>
   </div>
-  <div class="slide hidden" id="slide-29">
+  <div class="slide hidden" id="slide-28">
     <section class="slide-content"><p>What about <code>passive</code>?</p>
 <p>Listeners can be declared <code>passive</code> to signal to the browser that they don&#39;t call <code>preventDefault</code> so the browser could run the default action before event propagation.
 For example: to ensure smooth scolling behavior it is recommended to mark all <code>scroll</code> listeners as <code>passive</code>.</p>
 <p>For the second approach this would mean that all Secondary Effects could safely be marked <code>passive</code>, but that none of the Primary Effects could ever be marked <code>passive</code>.</p>
 </section>
   </div>
-  <div class="slide hidden" id="slide-30">
+  <div class="slide hidden" id="slide-29">
     <section class="slide-content"><p>What about <code>shadow DOM</code>?</p>
-<p>We should be able to receive UA generated events originating in the shadown DOM.</p>
+<p>We should be able to receive UA generated events originating in the shadow DOM.</p>
 <p>It seems some interactive elements using a shadow DOM currently swallow events, like <code>&lt;input type=&quot;date&quot;&gt;</code>, we get neither the Capturing nor the Bubbling phase.</p>
-<p>&quot;Date Picker popup doesn&#39;t propagate shadow DOM events into the light DOM&quot;</p>
 <p><a href="https://github.com/whatwg/html/issues/10343">https://github.com/whatwg/html/issues/10343</a></p>
 <p>Custom web component authors have the option to make DOM events from the shadow DOM visible to listeners in the regular DOM via <code>composed</code> + <code>bubbles</code>.</p>
 </section>
   </div>
-  <div class="slide hidden" id="slide-31">
+  <div class="slide hidden" id="slide-30">
     <section class="slide-content"><p>revisit the banking app?</p>
 </section>
   </div>

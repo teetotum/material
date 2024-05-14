@@ -8,13 +8,6 @@ controls: true
 progress: false
 style: "./presentation.css"
 
---
-Martin Winkler<br>
-twitter: `@winkler_12`<br>
-mastodon: `@mwinkler`<br>
-blog: `https://dev.to/teetotum`<br>
-github: `https://github.com/teetotum`<br>
-
 -- centered-text
 
 # DOM Event Cancellation
@@ -22,16 +15,29 @@ github: `https://github.com/teetotum`<br>
 pitfalls and solutions
 
 --
+Martin Winkler<br>
+twitter: `@winkler_12`<br>
+mastodon: `@mwinkler`<br>
+blog: `https://dev.to/teetotum`<br>
+github: `https://github.com/teetotum`<br>
 
-Apology.
-
-Should've called it _DOM Event Handledness_
+material for this talk: https://github.com/teetotum/material/tree/master/dom-event-cancellation-revised
 
 -- centered-text fit-image
 
 ![image](./listener_hierarchy.png)
 
+--
+
+Apology.
+
+Should've called it _DOM Event Handledness_
+
+(MDN calls only `e.preventDefault()` _cancelling_ an event.)
+
 -- centered-text
+
+## Event Cancellation (or Handledness)
 
 When would I need that?
 
@@ -39,15 +45,7 @@ When would I need that?
 
 --
 
-## Event Cancellation (or Handledness)
-
-I found no official guidance.
-
-MDN calls `e.preventDefault()` _cancelling_ an event.
-
---
-
-Fictitious example: Online Banking App
+Event listeners in the fictitious online banking app
 
 - any click or key down event resets session timeout
 - column headers can be selected
@@ -310,11 +308,9 @@ For the second approach this would mean that all Secondary Effects could safely 
 
 What about `shadow DOM`?
 
-We should be able to receive UA generated events originating in the shadown DOM.
+We should be able to receive UA generated events originating in the shadow DOM.
 
 It seems some interactive elements using a shadow DOM currently swallow events, like `<input type="date">`, we get neither the Capturing nor the Bubbling phase.
-
-"Date Picker popup doesn't propagate shadow DOM events into the light DOM"
 
 https://github.com/whatwg/html/issues/10343
 

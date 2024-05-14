@@ -3,6 +3,10 @@
   --fact-color: #ffffff;
 }
 
+pre {
+  font-size: 70%;
+}
+
 .sequence {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
