@@ -1,0 +1,1064 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <title>Accidental Complexity</title>
+  <style type="text/css">
+    body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #222;
+  font-size: 100%;
+}
+
+.slide {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 0; right: 0;
+  background-color: #f7f7f7;
+}
+
+.slide-content {
+  width: 800px;
+  height: 600px;
+  overflow: hidden;
+  margin: 80px auto 0 auto;
+  padding: 30px;
+
+  font-weight: 200;
+  font-size: 200%;
+  line-height: 1.375;
+}
+
+.controls {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+}
+
+.arrow {
+  width: 0; height: 0;
+  border: 30px solid #333;
+  float: left;
+  margin-right: 30px;
+
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.prev {
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+
+  border-left-width: 0;
+  border-right-width: 50px;
+}
+
+.next {
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  border-right-color: transparent;
+
+  border-left-width: 50px;
+  border-right-width: 0;
+}
+
+.prev:hover {
+  border-right-color: #888;
+  cursor: pointer;
+}
+
+.next:hover {
+  border-left-color: #888;
+  cursor: pointer;
+}
+
+h1 {
+  font-size: 300%;
+  line-height: 1.2;
+  text-align: center;
+  margin: 170px 0 0;
+}
+
+h2 {
+  font-size: 100%;
+  line-height: 1.2;
+  margin: 5px 0;
+  text-align: center;
+  font-weight: 200;
+}
+
+h3 {
+  font-size: 140%;
+  line-height: 1.2;
+  border-bottom: 1px solid #aaa;
+  margin: 0;
+  padding-bottom: 15px;
+}
+
+ul {
+  padding: 20px 0 0 60px;
+  font-weight: 200;
+  line-height: 1.375;
+}
+
+.author h1 {
+  font-size: 170%;
+  font-weight: 200;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.author h3 {
+  font-weight: 100;
+  text-align: center;
+  font-size: 95%;
+  border: none;
+}
+
+a {
+  text-decoration: none;
+  color: #44a4dd;
+}
+
+a:hover {
+  color: #66b5ff;
+}
+
+pre {
+  font-size: 60%;
+  line-height: 1.3;
+}
+
+.progress {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  z-index: 1;
+}
+
+.progress-bar {
+  width: 0%;
+  height: 3px;
+  background-color: #b4b4b4;
+
+  -webkit-transition: width 0.05s ease-out;
+  -moz-transition: width 0.05s ease-out;
+  -o-transition: width 0.05s ease-out;
+  transition: width 0.05s ease-out;
+}
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 850px) {
+
+  body {
+    font-size: 70%;
+  }
+
+  .slide-content {
+    width: auto;
+  }
+
+  img {
+    width: 100%;
+  }
+
+  h1 {
+    margin-top: 120px;
+  }
+
+  .prev, .prev:hover {
+    border-right-color: rgba(135, 135, 135, 0.5);
+  }
+
+  .next, .next:hover {
+    border-left-color: rgba(135, 135, 135, 0.5);
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 50%;
+    overflow: hidden;
+  }
+
+  .slide-content {
+    padding: 10px;
+    margin-top: 10px;
+    height: 340px;
+  }
+
+  h1 {
+    margin-top: 50px;
+  }
+
+  ul {
+    padding-left: 25px;
+  }
+}
+
+@media print {
+  * {
+    -webkit-print-color-adjust: exact;
+  }
+
+  @page {
+    size: letter;
+  }
+
+  .hidden {
+    display: inline;
+  }
+
+  html {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  body {
+    margin: 0 auto !important;
+    border: 0;
+    padding: 0;
+    float: none !important;
+    overflow: visible;
+    background: none !important;
+    font-size: 52%;
+  }
+
+  .progress, .controls {
+    display: none;
+  }
+
+  .slide {
+    position: static;
+  }
+
+  .slide-content {
+    border: 1px solid #222;
+    margin-top: 0;
+    margin-bottom: 40px;
+    height: 3.5in;
+    overflow: visible;
+  }
+
+  .slide:nth-child(even) {
+    /* 2 slides per page */
+    page-break-before: always;
+  }
+}
+
+/*
+
+github.com style (c) Vasily Polovnyov <vast@whiteants.net>
+
+*/
+
+.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 0.5em;
+  color: #333;
+  background: #f8f8f8;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: #998;
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-subst {
+  color: #333;
+  font-weight: bold;
+}
+
+.hljs-number,
+.hljs-literal,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag .hljs-attr {
+  color: #008080;
+}
+
+.hljs-string,
+.hljs-doctag {
+  color: #d14;
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-selector-id {
+  color: #900;
+  font-weight: bold;
+}
+
+.hljs-subst {
+  font-weight: normal;
+}
+
+.hljs-type,
+.hljs-class .hljs-title {
+  color: #458;
+  font-weight: bold;
+}
+
+.hljs-tag,
+.hljs-name,
+.hljs-attribute {
+  color: #000080;
+  font-weight: normal;
+}
+
+.hljs-regexp,
+.hljs-link {
+  color: #009926;
+}
+
+.hljs-symbol,
+.hljs-bullet {
+  color: #990073;
+}
+
+.hljs-built_in,
+.hljs-builtin-name {
+  color: #0086b3;
+}
+
+.hljs-meta {
+  color: #999;
+  font-weight: bold;
+}
+
+.hljs-deletion {
+  background: #fdd;
+}
+
+.hljs-addition {
+  background: #dfd;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+.lower-half {
+  position: fixed;
+  width: 100%;
+  left: 0;
+  height: 1000px;
+  text-align: center;
+  padding-top: 20px;
+}
+
+.list-block {
+  text-align: left;
+  list-style: none;
+  margin-inline: auto;
+  width: fit-content;
+}
+
+.auto-height .slide-content {
+  height: auto !important;
+}
+
+.memory-cards {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.memory-card {
+  padding: 20px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+}
+
+.memory-card:nth-child(1n) {
+  background-color: #b23c17;
+}
+.memory-card:nth-child(2n) {
+  background-color: #ff5722;
+}
+.memory-card:nth-child(3n) {
+  background-color: #ff784e;
+}
+.memory-card:nth-child(4n) {
+  background-color: #b26a00;
+}
+.memory-card:nth-child(5n) {
+  background-color: #ff9800;
+}
+.memory-card:nth-child(6n) {
+  background-color: #ffac33;
+  color: black;
+}
+.memory-card:nth-child(7n) {
+  background-color: #b28704;
+}
+.memory-card:nth-child(8n) {
+  background-color: #ffc107;
+  color: black;
+}
+.memory-card:nth-child(9n) {
+  background-color: #ffcd38;
+  color: black;
+}
+
+.slide {
+  h1 {
+    font-size: 200%;
+  }
+
+  blockquote {
+    border-left: 4px solid black;
+    background-color: #9ee2f7;
+    padding: 2px 20px;
+    margin-block-start: 8px;
+    margin-block-end: 8px;
+  }
+}
+
+.slide-content {
+  margin-top: 10px;
+}
+
+  </style>
+</head>
+<body>
+  
+  <div class="slide" id="slide-1">
+    <section class="slide-content"><h1 id="accidental-complexity">Accidental Complexity</h1>
+<div class="lower-half">
+  <ul class="list-block">
+    <li>Martin Winkler</li>
+    <li>Web Developer</li>
+    <li>Avenga Germany GmbH</li>
+  </ul>
+</div></section>
+  </div>
+  <div class="slide hidden" id="slide-2">
+    <section class="slide-content"><p><em>Complexity</em> als Last für unser Gehirn</p>
+<p>nicht als Last für die CPU</p>
+<p><img style="object-fit: contain; height: 460px" src="images/small_drake_meme_bigO_brain.jpg" /></p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-3">
+    <section class="slide-content"><ul>
+<li><p>essential complexity<br>&quot;we have a hard problem&quot;<br>Die Komplexität der Anwendungs-Domäne</p>
+</li>
+<li><p>accidental complexity<br>&quot;we have made a problem hard&quot;<br>Der ganze Rest</p>
+</li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden  auto-height" id="slide-4">
+    <section class="slide-content"><p>Quellen</p>
+<ul>
+<li><p>&quot;A Philosophy of Software Design&quot; John Ousterhout</p>
+</li>
+<li><p>&quot;Simple Made Easy&quot; - Rich Hickey<br><a href="https://www.youtube.com/watch?v=SxdOUGdseq4">https://www.youtube.com/watch?v=SxdOUGdseq4</a></p>
+</li>
+<li><p>Alan Kay, &quot;Power of Simplicity&quot;<br><a href="https://www.youtube.com/watch?v=NdSD07U5uBs">https://www.youtube.com/watch?v=NdSD07U5uBs</a></p>
+</li>
+<li><p>Kevlin Henney: Essential versus Accidental Complexity<br><a href="https://www.youtube.com/watch?v=OFoAHSEDwe8">https://www.youtube.com/watch?v=OFoAHSEDwe8</a></p>
+</li>
+<li><p>&quot;Why Can&#39;t We Make Simple Software?&quot; - Peter van Hardenberg<br><a href="https://www.youtube.com/watch?v=czzAVuVz7u4">https://www.youtube.com/watch?v=czzAVuVz7u4</a></p>
+</li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-5">
+    <section class="slide-content"><p>accidental complexity</p>
+<ul>
+<li>the complexity that we create for ourselves</li>
+<li>choice of tooling</li>
+<li>choice of frameworks</li>
+<li>choice of languages</li>
+<li>package.json with 100+ dependencies</li>
+<li>too many layers of indirection</li>
+<li>spaghetti code</li>
+<li>opaque or cryptic naming</li>
+<li>lack of clarity</li>
+<li>noisy code</li>
+<li>etc.</li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-6">
+    <section class="slide-content"><p><img style="object-fit: contain; height: 460px" src="images/Alan_Kay_complexity.jpg" /></p>
+<p>Quelle: Alan Kay, &quot;Power of Simplicity&quot;</p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-7">
+    <section class="slide-content"><p>Begriffe:</p>
+<p>Rich Hickey: <em>problem complexity</em> vs. <em>incidental complexity</em></p>
+<p>Allan Kay: <em>essential complexity</em> vs. <em>complications</em></p>
+<p>Fred Brooks, Kevlin Henney: <em>essential complexity</em> vs. <em>accidental complexity</em></p>
+<p>Ousterhout: unnecessary complexity</p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-8">
+    <section class="slide-content"><p>Complexity != lines of code</p>
+<p>A large system can still be simple.</p>
+<p>hard to understand and modify = complicated</p>
+<p>easy to understand and modify = simple</p>
+<p>(Ousterhout)</p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-9">
+    <section class="slide-content"><h2 id="the-dangers-of-complexity">the dangers of complexity</h2>
+<ul>
+<li>risk of project failure</li>
+</ul>
+<blockquote>
+<p>complexity getting out of hand is the biggest internal threat to software development projects
+(citation needed)</p>
+</blockquote>
+<ul>
+<li><p>Abhängen der anderen Entwickler</p>
+</li>
+<li><p>loss of Intellectual Control (nachfolgend erklärt)</p>
+</li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-10">
+    <section class="slide-content"><h2 id="intellectual-control-term-by-edsger-dijkstra-">Intellectual Control (term by Edsger Dijkstra)</h2>
+<p>The ability to read the code (of a module) and fully understand its flow and outcome.
+In short: to reason about the code. (not Dijkstra&#39;s definition)</p>
+<p>Quelle
+<a href="https://www.georgefairbanks.com/ieee-software-v37-n3-may-2020-testing-numbs-us-to-our-loss-of-intellectual-control">https://www.georgefairbanks.com/ieee-software-v37-n3-may-2020-testing-numbs-us-to-our-loss-of-intellectual-control</a></p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-11">
+    <section class="slide-content"><p>accidental complexity in allen Ebenen:</p>
+<ul>
+<li>Platform/Runtime</li>
+<li>Architektur</li>
+<li>Programmiersprache</li>
+<li>Transformationen</li>
+<li>Bibliothenken / Dependencies</li>
+<li>Framework</li>
+<li>Projekt-Setup</li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-12">
+    <section class="slide-content"><p>causes of complexity: dependencies and obscurity</p>
+<p>a dependency exists when a given piece of code cannot be understood and modified in isolation; the code relates in some way to other code, and the other code must be considered and/or modified if the given code is changed.</p>
+<p>obscurity occurs when important information is not obvious.</p>
+<p>(Ousterhout)</p>
+</section>
+  </div>
+  <div class="slide hidden  auto-height" id="slide-13">
+    <section class="slide-content"><p>wo kommt accidental complexity her?</p>
+<div class="memory-cards">
+  <div class="memory-card">Bad names</div>
+  <div class="memory-card">Vermischung</div>
+  <div class="memory-card">kein passender Baustein</div>
+  <div class="memory-card">Tradeoff</div>
+  <div class="memory-card">wrong building block</div>
+  <div class="memory-card">zerklitterung</div>
+  <div class="memory-card">Trojanisches Pferd</div>
+  <div class="memory-card">Tiefe / Breite Unverhältnis</div>
+  <div class="memory-card">missed alternative</div>
+  <div class="memory-card">tactical programming</div>
+  <div class="memory-card">data fudging</div>
+  <div class="memory-card">crowding</div>
+</div></section>
+  </div>
+  <div class="slide hidden" id="slide-14">
+    <section class="slide-content"><ul>
+<li>Bad names: schlecht benannte Variablen, Funktionen, Klassen</li>
+</ul>
+<!-- prettier-ignore -->
+<pre><code class="lang-ts">
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> checkDates = (list: <span class="hljs-built_in">Array</span>&lt;DatePeriod&gt;, current: DatePeriod): <span class="hljs-built_in">Array</span>&lt;DatePeriod&gt; =&gt; { ... }
+</code></pre>
+<p>versus</p>
+<pre><code class="lang-ts">
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> omitCurrent = (list: <span class="hljs-built_in">Array</span>&lt;DatePeriod&gt;, current: DatePeriod): <span class="hljs-built_in">Array</span>&lt;DatePeriod&gt; =&gt; { ... }
+</code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-15">
+    <section class="slide-content"><ul>
+<li><p>Vermischung: eine Code-Stelle behandelt mehrer Ideen gleichzeitig, statt separate Ideen separat zu behandeln</p>
+<p>Gedankenexperiment: kann ich code &quot;einfärben&quot;</p>
+<ul>
+<li>eine neue Farbe für jedes separate Requirement / Idee die im Code abgebildet wird</li>
+<li>ergeben sich dann klar eingefärbte Zeilen</li>
+<li>oder habe ich kunterbunten Mischmasch?</li>
+</ul>
+</li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-16">
+    <section class="slide-content"><pre><code class="lang-ts">const [randomIndices, setRandomIndices] = useState(()=&gt;[
+  ...getRandom({ cardinality: 3, range: preparedQuestions, taken: [] })
+])
+
+...
+
+&lt;div className={styles.preparedQuestions}&gt;
+  {preparedQuestions!.map((snippet, index) =&gt; randomIndices.includes[index] ? (
+    &lt;Button onClick={() =&gt; setQuestion(snippet)}&gt;
+      {snippet}
+    &lt;/Button&gt;
+  ) : null)}
+&lt;/div&gt;
+{(preparedQuestions?.length as number) &gt; randomIndices.length &amp;&amp; (
+  &lt;Button onClick={() =&gt; setRandomIndices((indices) =&gt; [
+    ...indices, ...getRandom({ cardinality: 3, range: preparedQuestions, taken: indices })
+  ])}&gt;
+    Weitere Fragen
+  &lt;/Button&gt;
+)}
+</code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-17">
+    <section class="slide-content"><pre><code class="lang-ts">const [maxPreparedQuestions, setMaxPreparedQuestions] = useState&lt;number&gt;(3)
+const [shuffledQuestions] = useState(() =&gt; shuffle(preparedQuestions ?? []))
+
+...
+
+&lt;div className={styles.preparedQuestions}&gt;
+  {shuffledQuestions!.slice(0, maxPreparedQuestions).map((snippet) =&gt; (
+    &lt;Button onClick={() =&gt; setQuestion(snippet)}&gt;
+      {snippet}
+    &lt;/Button&gt;
+  ))}
+&lt;/div&gt;
+{(preparedQuestions?.length as number) &gt; maxPreparedQuestions &amp;&amp; (
+  &lt;Button onClick={() =&gt; setMaxPreparedQuestions((n) =&gt; n + 3)}&gt;
+    Weitere Fragen
+  &lt;/Button&gt;
+)}
+</code></pre>
+</section>
+  </div>
+  <div class="slide hidden  auto-height" id="slide-18">
+    <section class="slide-content"><ul>
+<li>fehlen eines passgenauen Bausteins</li>
+</ul>
+<pre><code>export const ModalDialog = ({children, onOpen, onClose, ...props}) =&gt; {
+  const onOpenRef = useLatestRef(onOpen)
+  useEffect(() =&gt; {
+      if (dialog.current) {
+        const observer = new MutationObserver((mutations) =&gt; {
+          const openAttrChanged = mutations
+            .filter(
+              (m) =&gt;
+                m.type === &#39;attributes&#39; &amp;&amp;
+                m.target === dialog.current &amp;&amp;
+                m.attributeName === &#39;open&#39;,
+            )
+            .pop()
+          if (openAttrChanged) {
+            const newValue = (openAttrChanged.target as HTMLDialogElement).open
+            setIsOpenInternal(newValue)
+            if (newValue) onOpenRef.current?.()
+          }
+        })
+        observer.observe(dialog.current, { attributeFilter: [&#39;open&#39;] })
+        const syncStateClose = () =&gt; setIsOpenInternal(false)
+        dialog.current.addEventListener(&#39;close&#39;, syncStateClose)
+        return () =&gt; {
+          dialog.current?.removeEventListener(&#39;close&#39;, syncStateClose)
+          observer.disconnect()
+        }
+      }
+    }, [])
+
+  return (
+      &lt;dialog
+        {...props}
+        onClose={onClose}
+      &gt;
+        {children}
+      &lt;/dialog&gt;
+    )
+}
+</code></pre></section>
+  </div>
+  <div class="slide hidden" id="slide-19">
+    <section class="slide-content"><pre><code>export const ModalDialog = ({children, onOpen, onClose, ...props}) =&gt; {
+  return (
+      &lt;dialog
+        {...props}
+        onOpen={onOpen}
+        onClose={onClose}
+      &gt;
+        {children}
+      &lt;/dialog&gt;
+    )
+}
+</code></pre></section>
+  </div>
+  <div class="slide hidden" id="slide-20">
+    <section class="slide-content"><ul>
+<li>Tradeoff / erkaufte Eigenschaften</li>
+</ul>
+<p>z.B. leichte Verwendbarkeit unseres Programms dadurch erkauft, daß wir einen Bundler verwenden<br>-&gt; gestiegene Komplexität des Projekt-Setup</p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-21">
+    <section class="slide-content"><ul>
+<li><p>wrong building block</p>
+<p>Anekdote:
+Menü mit <code>&lt;ListBox&gt;</code> vs <code>&lt;StackPanel&gt;</code></p>
+<ul>
+<li><code>SelectedItemChanged</code> als Auslöser für ein Menü-Command</li>
+<li>unbeabsichtigtes Auslösen durch ArrowButtons</li>
+<li>kein wiederholtes Ausführen möglich</li>
+<li>kampf gegen <code>SelectedItem</code></li>
+<li>statt <code>&lt;StackPanel&gt;</code> mit <code>&lt;Button&gt;</code></li>
+</ul>
+</li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-22">
+    <section class="slide-content"><ul>
+<li><p>zerklitterung</p>
+<p>Anekdote:
+Eine simple Funktion in fünf winzige Funktionen zerlegt, sodass die tatsächliche Funktionalität völlig unverständlich wurde.</p>
+</li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-23">
+    <section class="slide-content"><ul>
+<li>Das Trojanische Pferd:<br>A library decision that seemed beneficial but later regretted bitterly. Usually expensive to get rid of.</li>
+</ul>
+<p><img style="object-fit: contain; height: 460px" src="images/trojan-horse-cartoon.jpg" /></p>
+</section>
+  </div>
+  <div class="slide hidden  auto-height" id="slide-24">
+    <section class="slide-content"><ul>
+<li><p>Missverhältnis von Tiefe und Breite</p>
+<p>Module sollen mehr Komplexität verbergen als sie durch ihre existenz Erzeugen</p>
+<p>Nach Ousterhout:</p>
+<p>modules should be deep</p>
+</li>
+</ul>
+<p>deep and shallow modules. the best modules are deep: they allow a lot of functionality to be accessed through a simple interface. a shallow module is one with a relatively complex interface, but not much functionality: it doesn&#39;t hide much complexity.</p>
+</section>
+  </div>
+  <div class="slide hidden  auto-height" id="slide-25">
+    <section class="slide-content"><ul>
+<li>The missed alternative: Es gäbe eine simplere Lösung, aber dem Entwickler war diese nicht bekannt.</li>
+</ul>
+<!-- prettier-ignore -->
+<pre><code class="lang-ts"><span class="hljs-keyword">type</span> DatePeriod = {
+  start: ISO8601Date;
+  end: ISO8601Date;
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> check = (list: <span class="hljs-built_in">Array</span>&lt;DatePeriod&gt;, current: DatePeriod): <span class="hljs-built_in">Array</span>&lt;DatePeriod&gt; =&gt; {
+  <span class="hljs-keyword">const</span> newList: <span class="hljs-built_in">Array</span>&lt;DatePeriod&gt; = [];
+  <span class="hljs-keyword">if</span> (list) {
+    list.forEach(<span class="hljs-function">(<span class="hljs-params">existingPeriod</span>) =&gt;</span> {
+      <span class="hljs-keyword">if</span> (
+        existingPeriod?.start &amp;&amp;
+        existingPeriod?.end &amp;&amp;
+        existingPeriod?.start !== current?.start &amp;&amp;
+        existingPeriod?.end !== current?.end
+      ) {
+        newList.push({
+          start: existingPeriod?.start,
+          end: existingPeriod?.end,
+        });
+      }
+    });
+  }
+  <span class="hljs-keyword">return</span> newList;
+};
+</code></pre>
+<p>versus</p>
+<pre><code class="lang-ts">newList = list.filter(
+  <span class="hljs-function">(<span class="hljs-params">period</span>) =&gt;</span> period.start !== current.start &amp;&amp; period.end !== current.end
+);
+</code></pre>
+</section>
+  </div>
+  <div class="slide hidden  auto-height" id="slide-26">
+    <section class="slide-content"><ul>
+<li><p>tactical programming</p>
+<p>nach Ousterhout:
+[tactical programming] is short-sighted. [...] trying to finish a task as quickly as possible [with disregard for system structure].
+this is how systems become complicated. [...] complexity is incremental.
+If you program tactically, each programming task will contribute a few of these complexities.</p>
+</li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-27">
+    <section class="slide-content"><ul>
+<li><p>data fudging: meddling with data motivated by a purely presentational concern</p>
+<p>Anekdote:</p>
+<ul>
+<li>Der springende Cursor
+<img src="images/input_with_focus.png" alt="alt text">
+<img src="images/input_unfocused.png" alt="alt text">
+und</li>
+<li>&quot;Mehr Items&quot; als letzter Eintrag</li>
+</ul>
+</li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-28">
+    <section class="slide-content"><ul>
+<li>crowding / Wall of Text</li>
+</ul>
+<pre><code class="lang-ts"><span class="hljs-keyword">get</span> satelliteDisabled() {
+    <span class="hljs-keyword">return</span> (
+      <span class="hljs-keyword">this</span>.widgetMeta?.satellite === <span class="hljs-literal">false</span> ||
+      <span class="hljs-keyword">this</span>.config._tracking?.inview === <span class="hljs-literal">null</span> ||
+      (<span class="hljs-keyword">this</span>.topParent !== <span class="hljs-keyword">this</span>.root &amp;&amp;
+        <span class="hljs-keyword">this</span>.config._tracking?.inview === <span class="hljs-literal">undefined</span> &amp;&amp;
+        BaseState.NESTED_WIDGETS.includes(<span class="hljs-keyword">this</span>.topParent.dataset.fsw!))
+    )
+  }
+</code></pre>
+</section>
+  </div>
+  <div class="slide hidden  auto-height" id="slide-29">
+    <section class="slide-content"><p>accidental complexity</p>
+<ul>
+<li>Passiert ganz von selbst wenn nicht aktiv gegengesteuert wird.
+Quasi &quot;Naturgesetz&quot; der Software-Entwicklung.</li>
+<li>Hat nichts mit Dummheit zu tun</li>
+<li>Passiert auch den Besten</li>
+<li>Gegensteuern lohnt sich langfristig</li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-30">
+    <section class="slide-content"><h2 id="kommen-wir-jemals-auf-0-">Kommen wir jemals auf 0?</h2>
+<p>Nein, nur theoretisches Ideal - wie der absolute Nullpunkt der Physik.
+Außerdem: Tradeoffs, und unverschuldete Komplexität existieren</p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-31">
+    <section class="slide-content"><p>Aber wenn man nun mal in seinem Projekt tief in der roten Zone ist?</p>
+<p>Was tun?</p>
+<ul>
+<li>Refactoring ist schön und gut aber oft nicht machbar:<ul>
+<li>Budget</li>
+<li>Zeit</li>
+<li>kein geeigneter &quot;Anpack&quot;</li>
+<li>noch zuwenig Durchblick</li>
+</ul>
+</li>
+</ul>
+<p>Es muss nicht immer gleich ein Refactoring sein!</p>
+</section>
+  </div>
+  <div class="slide hidden  auto-height" id="slide-32">
+    <section class="slide-content"><p>Wertvollste Information im Code ist: Intention</p>
+<ul>
+<li>re-introducing <em>intention</em> into the code where it&#39;s missing</li>
+<li>low effort - high impact</li>
+</ul>
+<p>Vorgehen:</p>
+<ul>
+<li>beim täglichen arbeiten</li>
+<li>in dem Modul in dem man sowieso gerade tätig werden muss</li>
+<li>sobald man einen Baustein verstanden hat</li>
+<li>die Intention im Code ergänzen<ul>
+<li>bessere Namen wählen</li>
+<li>Kommentare als &quot;Brotkrumen&quot; und Hinweise hinterlassen</li>
+</ul>
+</li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-33">
+    <section class="slide-content"><h1>
+Genug für heute.
+</h1></section>
+  </div>
+
+  <div class="controls">
+    <div class="arrow prev"></div>
+    <div class="arrow next"></div>
+  </div>
+
+
+  <script type="text/javascript">
+    /**
+ * Returns the current page number of the presentation.
+ */
+function currentPosition() {
+  return parseInt(document.querySelector('.slide:not(.hidden)').id.slice(6));
+}
+
+
+/**
+ * Navigates forward n pages
+ * If n is negative, we will navigate in reverse
+ */
+function navigate(n) {
+  var position = currentPosition();
+  var numSlides = document.getElementsByClassName('slide').length;
+
+  /* Positions are 1-indexed, so we need to add and subtract 1 */
+  var nextPosition = (position - 1 + n) % numSlides + 1;
+
+  /* Normalize nextPosition in-case of a negative modulo result */
+  nextPosition = (nextPosition - 1 + numSlides) % numSlides + 1;
+
+  document.getElementById('slide-' + position).classList.add('hidden');
+  document.getElementById('slide-' + nextPosition).classList.remove('hidden');
+
+  updateProgress();
+  updateURL();
+  updateTabIndex();
+}
+
+
+/**
+ * Updates the current URL to include a hashtag of the current page number.
+ */
+function updateURL() {
+  try {
+    window.history.replaceState({} , null, '#' + currentPosition());
+  } catch (e) {
+    window.location.hash = currentPosition();
+  }
+}
+
+
+/**
+ * Sets the progress indicator.
+ */
+function updateProgress() {
+  var progressBar = document.querySelector('.progress-bar');
+
+  if (progressBar !== null) {
+    var numSlides = document.getElementsByClassName('slide').length;
+    var position = currentPosition() - 1;
+    var percent = (numSlides === 1) ? 100 : 100 * position / (numSlides - 1);
+    progressBar.style.width = percent.toString() + '%';
+  }
+}
+
+
+/**
+ * Removes tabindex property from all links on the current slide, sets
+ * tabindex = -1 for all links on other slides. Prevents slides from appearing
+ * out of control.
+ */
+function updateTabIndex() {
+  var allLinks = document.querySelectorAll('.slide a');
+  var position = currentPosition();
+  var currentPageLinks = document.getElementById('slide-' + position).querySelectorAll('a');
+  var i;
+
+  for (i = 0; i < allLinks.length; i++) {
+    allLinks[i].setAttribute('tabindex', -1);
+  }
+
+  for (i = 0; i < currentPageLinks.length; i++) {
+    currentPageLinks[i].removeAttribute('tabindex');
+  }
+}
+
+/**
+ * Determines whether or not we are currently in full screen mode
+ */
+function isFullScreen() {
+  return document.fullscreenElement ||
+         document.mozFullScreenElement ||
+         document.webkitFullscreenElement ||
+         document.msFullscreenElement;
+}
+
+/**
+ * Toggle fullScreen mode on document element.
+ * Works on chrome (>= 15), firefox (>= 9), ie (>= 11), opera(>= 12.1), safari (>= 5).
+ */
+function toggleFullScreen() {
+  /* Convenient renames */
+  var docElem = document.documentElement;
+  var doc = document;
+
+  docElem.requestFullscreen =
+      docElem.requestFullscreen ||
+      docElem.msRequestFullscreen ||
+      docElem.mozRequestFullScreen ||
+      docElem.webkitRequestFullscreen.bind(docElem, Element.ALLOW_KEYBOARD_INPUT);
+
+  doc.exitFullscreen =
+      doc.exitFullscreen ||
+      doc.msExitFullscreen ||
+      doc.mozCancelFullScreen ||
+      doc.webkitExitFullscreen;
+
+  isFullScreen() ? doc.exitFullscreen() : docElem.requestFullscreen();
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  // Update the tabindex to prevent weird slide transitioning
+  updateTabIndex();
+
+  // If the location hash specifies a page number, go to it.
+  var page = window.location.hash.slice(1);
+  if (page) {
+    navigate(parseInt(page) - 1);
+  }
+
+  document.onkeydown = function (e) {
+    var kc = e.keyCode;
+
+    // left, down, H, J, backspace, PgUp - BACK
+    // up, right, K, L, space, PgDn - FORWARD
+    // enter - FULLSCREEN
+    if (kc === 37 || kc === 40 || kc === 8 || kc === 72 || kc === 74 || kc === 33) {
+      navigate(-1);
+    } else if (kc === 38 || kc === 39 || kc === 32 || kc === 75 || kc === 76 || kc === 34) {
+      navigate(1);
+    } else if (kc === 13) {
+      toggleFullScreen();
+    }
+  };
+
+  if (document.querySelector('.next') && document.querySelector('.prev')) {
+    document.querySelector('.next').onclick = function (e) {
+      e.preventDefault();
+      navigate(1);
+    };
+
+    document.querySelector('.prev').onclick = function (e) {
+      e.preventDefault();
+      navigate(-1);
+    };
+  }
+});
+
+
+  </script>
+</body>
+</html>

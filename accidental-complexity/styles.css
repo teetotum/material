@@ -1,0 +1,83 @@
+.lower-half {
+  position: fixed;
+  width: 100%;
+  left: 0;
+  height: 1000px;
+  text-align: center;
+  padding-top: 20px;
+}
+
+.list-block {
+  text-align: left;
+  list-style: none;
+  margin-inline: auto;
+  width: fit-content;
+}
+
+.auto-height .slide-content {
+  height: auto !important;
+}
+
+.memory-cards {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.memory-card {
+  padding: 20px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+}
+
+.memory-card:nth-child(1n) {
+  background-color: #b23c17;
+}
+.memory-card:nth-child(2n) {
+  background-color: #ff5722;
+}
+.memory-card:nth-child(3n) {
+  background-color: #ff784e;
+}
+.memory-card:nth-child(4n) {
+  background-color: #b26a00;
+}
+.memory-card:nth-child(5n) {
+  background-color: #ff9800;
+}
+.memory-card:nth-child(6n) {
+  background-color: #ffac33;
+  color: black;
+}
+.memory-card:nth-child(7n) {
+  background-color: #b28704;
+}
+.memory-card:nth-child(8n) {
+  background-color: #ffc107;
+  color: black;
+}
+.memory-card:nth-child(9n) {
+  background-color: #ffcd38;
+  color: black;
+}
+
+.slide {
+  h1 {
+    font-size: 200%;
+  }
+
+  blockquote {
+    border-left: 4px solid black;
+    background-color: #9ee2f7;
+    padding: 2px 20px;
+    margin-block-start: 8px;
+    margin-block-end: 8px;
+  }
+}
+
+.slide-content {
+  margin-top: 10px;
+}
