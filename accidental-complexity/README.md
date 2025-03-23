@@ -10,3 +10,5 @@ cleaver watch talk.md
 ```
 
 should output presentation.html into the same folder
+
+held at WebMontag meetup 17th february 2025
