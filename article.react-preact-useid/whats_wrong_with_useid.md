@@ -53,7 +53,7 @@ If you are interested to see the bug demonstrated: I created a small [reproducti
 
 ## An Attempt at an Explanation
 
-As far as I understand, the requirement to produce the same ID for any given component instance in the virtual DOM when rendered _client-side_ or when rendered _server-side_, bars the `useId` implementation from using any randomness; only the component position in the virtual DOM and/or the calling order (so anything that is stable w.r.t. _client-side_ vs _server-side_ rendering) can be used to generate an ID that is stable but also unique within the same app.
+As far as I understand, the requirement to produce the same ID for any given component instance in the virtual DOM when rendered _client-side_ or when rendered _server-side_ bars the `useId` implementation from using any randomness; only the component position in the virtual DOM and/or the calling order (so anything that is stable w.r.t. _client-side_ vs _server-side_ rendering) can be used to generate an ID that is stable but also unique within the same app.
 
 ## An Attempt at a Solution
 
@@ -83,7 +83,7 @@ It is certainly not ideal that the issue has to be resolved manually, but I'm su
 
 The Preact team is aware of the [issue](https://github.com/preactjs/preact/issues/3781), but has not yet mirrored the `identifierPrefix` feature.
 
-Luckily for me the _server-side rendering_ aspect is irrelevant as my components are only ever renderd _client-side_.
+Luckily for me the _server-side rendering_ aspect is irrelevant as my components are only ever rendered _client-side_.
 So my solution to the problem currently is to just use a custom hook instead of `useId`, to generate dynamic and lifetime-stable IDs and using randomness to my heart's content; see next section for implementation details.
 
 ## Roll your own
