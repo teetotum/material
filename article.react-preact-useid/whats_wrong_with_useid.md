@@ -87,7 +87,7 @@ Luckily for me the _server-side rendering_ aspect is irrelevant as my components
 So my solution to the problem currently is to just use a custom hook instead of `useId`, to generate dynamic and lifetime-stable IDs and using randomness to my heart's content; see section [Custom Hook with Randomness](#custom-hook-with-randomness) for implementation details.
 
 But what if you are not so lucky? When your setup uses Preact with _client-side_ and _server-sider_ rendering?
-In this case I would recommend to simulate the `identifierPrefix` feature until it is provided by Preact out of the box; see section [identifierPrefix in Preact](#identifierprefix-in-preact) for implementation details.
+In this case I would recommend to emulate the `identifierPrefix` feature until it is provided by Preact out of the box; see section [identifierPrefix in Preact](#identifierprefix-in-preact) for implementation details.
 
 ## Roll your own
 
@@ -141,7 +141,7 @@ Here checking each newly generated ID against the existing IDs can be omitted be
 
 Disclaimer: I haven't tried this out yet; but to the best of my knowledge this should work just as expected.
 
-You can simlate the identifierPrefix feature by wrapping your root in a context provider, passing down a prefix to your patched `useId` hook.
+You can emulate the identifierPrefix feature by wrapping your root in a context provider, passing down a prefix to your patched `useId` hook.
 
 The context:
 
