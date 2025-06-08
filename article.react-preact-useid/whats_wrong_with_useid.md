@@ -84,9 +84,19 @@ It is certainly not ideal that the issue has to be resolved manually, but I'm su
 The Preact team is aware of the [issue](https://github.com/preactjs/preact/issues/3781), but has not yet mirrored the `identifierPrefix` feature.
 
 Luckily for me the _server-side rendering_ aspect is irrelevant as my components are only ever rendered _client-side_.
-So my solution to the problem currently is to just use a custom hook instead of `useId`, to generate dynamic and lifetime-stable IDs and using randomness to my heart's content; see next section for implementation details.
+So my solution to the problem currently is to just use a custom hook instead of `useId`, to generate dynamic and lifetime-stable IDs and using randomness to my heart's content; see section [Custom Hook with Randomness](#custom-hook-with-randomness) for implementation details.
+
+But what if you are not so lucky? When your setup uses Preact with _client-side_ and _server-sider_ rendering?
+In this case I would recommend to simulate the `identifierPrefix` feature until it is provided by Preact out of the box; see section [identifierPrefix in Preact](#identifierprefix-in-preact) for implementation details.
 
 ## Roll your own
+
+This section provides code examples for both approaches:
+
+- a custom hook with randomness (client-side-only approach)
+- identifierPrefix in Preact (client-side and server-side)
+
+### Custom Hook with Randomness
 
 One implementation of my homebrewn `useStableID` could look like this:
 
@@ -126,6 +136,58 @@ export const useStableID = () => {
 ```
 
 Here checking each newly generated ID against the existing IDs can be omitted because GUIDs / UUIDs are unique with sufficient probability (that's really the whole point of them).
+
+### identifierPrefix in Preact
+
+Disclaimer: I haven't tried this out yet; but to the best of my knowledge this should work just as expected.
+
+You can simlate the identifierPrefix feature by wrapping your root in a context provider, passing down a prefix to your patched `useId` hook.
+
+The context:
+
+```jsx
+import { createContext } from "preact";
+
+export const IdentifierPrefix = createContext(null);
+```
+
+Providing a prefix:
+
+```jsx
+import { IdentifierPrefix } from "./identifierPrefixContext";
+
+const root1 = document.getElementById("root1");
+root1.render(
+  <IdentifierPrefix.Provider value="my-first-app-">
+    <App />
+  </IdentifierPrefix.Provider>,
+  root1
+);
+
+const root2 = document.getElementById("root2");
+root2.render(
+  <IdentifierPrefix.Provider value="my-second-app-">
+    <App />
+  </IdentifierPrefix.Provider>,
+  root2
+);
+```
+
+The patched `useId` hook:
+
+```jsx
+import { useContext } from "preact/hooks";
+import { IdentifierPrefix } from "./identifierPrefixContext";
+
+export const usePatchedUseId = () => {
+  const identifierPrefix = useContext(IdentifierPrefix);
+  const id = useId();
+  return `${identifierPrefix}${id}`;
+};
+```
+
+Using `usePatchedUseId` everywhere instead of `useId` should now solve your problem.
+You'll need to provide the same prefix values on the client and on the server.
 
 ## Future Updates and Further Reading
 
