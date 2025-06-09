@@ -157,7 +157,7 @@ Providing a prefix:
 import { IdentifierPrefix } from "./identifierPrefixContext";
 
 const root1 = document.getElementById("root1");
-root1.render(
+render(
   <IdentifierPrefix.Provider value="my-first-app-">
     <App />
   </IdentifierPrefix.Provider>,
@@ -165,7 +165,7 @@ root1.render(
 );
 
 const root2 = document.getElementById("root2");
-root2.render(
+render(
   <IdentifierPrefix.Provider value="my-second-app-">
     <App />
   </IdentifierPrefix.Provider>,
