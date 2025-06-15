@@ -38,6 +38,9 @@ With release 18.0.0 (March 29, 2022) React introduced the [`useId`](https://reac
 > `useId` is a new hook for generating unique IDs on both the client and server, while avoiding hydration mismatches.
 > (from the [release notes](https://github.com/facebook/react/releases/tag/v18.0.0))
 
+While implementing our own random-ID-generating hook isn't much of a challenge, we would run into problems when our app were to use _server-side_ rendered (SSR) parts and the IDs generated on the server would not match the IDs generated on the client.
+The `useId` hook generates a deterministic ID that would be the same _client-side_ and _server-side_.
+
 This would make all those custom hooks obsolete and a thing of the past. Or so I thought.
 
 ## A Discovery of Trouble
