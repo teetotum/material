@@ -130,7 +130,7 @@ It probably is a good idea to just be explicit in the style rules for flex items
 
 The flexbox has a `gap` property (and more specific `row-gap` / `column-gap`) so we no longer need to set margins on the items.
 This eliminates the need to have any special rule for the first or the last child.
-Before the gap property was fully supported it was often necessairy to apply a `margin-left` to all children except the first; or to apply a `margin-right` to all children except the last.
+Before the gap property was fully supported it was often necessary to apply a `margin-left` to all children except the first; or to apply a `margin-right` to all children except the last.
 
 ## Bits and Pieces
 
@@ -157,3 +157,11 @@ If you find yourself in a situation when you have to solve a flexbox related lay
 
 There is also a `display: inline-flex` variant. Towards its surroundings it acts as any inline element, towards its children it is a flexbox.
 I sometimes need this if I need to place a flexbox inside a `<table>` cell so the box itself can be aligned left, center, or right like any text cell content.
+
+## Further Reading
+
+Some time has passed since I wrote this article and I found additional bits and pieces regarding the flexbox.
+So I'll just add them here for interested readers and for myself; this is my place for flex related bookmarks, where I will go looking first when I need to refresh my flexbox knowledge.
+
+- [The unknown behavior of flex-wrap](https://css-tip.com/flex-wrap/) by Temani Afif
+- My point about "flex: none - all the SVGs!" to prevent elements from being squished is also covered in [3 Unintuitive CSS Layout “Solutions” - Don't squish me](https://nerdy.dev/3-unintuitive-layout-solutions#don't-squish-me) by Adam Argyle. In the same article he also explains an important point about [Remove intrinsic minimal sizing](https://nerdy.dev/3-unintuitive-layout-solutions#remove-intrinsic-minimal-sizing) which strangely I haven't covered here in my own article; you'll need to remove intrinsic min size to prevent a _blowout_ of the flexbox; this happens when the combined min sizes of your flex children are larger than the available flexbox size.
