@@ -148,6 +148,7 @@ Well, that is simply not true. The values `hidden` and `collapse` both have the 
 Strangely but luckily the behavior of flex children is special: here the value actually acts in accordance with the expectations of any sane person.
 A flex child with `visibility: collapse` frees up its space so other elements can take it up.
 **Addendum:** In Chrome (and browsers that use the same engine) this doesn't work. There is a [bug](https://issues.chromium.org/issues/41085247) that `hidden` and `collapse` on flex children currently behave the old way, i.e. not freeing up space in the `collapse` case. It was opened 2014 and is still open in 2024 so I don't expect this to get fixed anytime soon.
+**Addendum 2:** There was an update on the bug on _Jun 3, 2025 08:49PM_ so it might be fixed and closed soon
 
 ### IE11 and the flexbox
 
